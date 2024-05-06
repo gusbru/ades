@@ -9,7 +9,7 @@ import yaml
 
 from argo_workflow import ArgoWorkflow, ContainerRegistry, JobInformation, WorkflowConfig, WorkflowStorageCredentials, WorkspaceCredentials, Endpoint, StorageCredentials
 
-class ADESV2:
+class ADES:
     def __init__(self, conf, inputs, outputs):
         self.conf = conf
         self.inputs = inputs
