@@ -5,7 +5,6 @@ from urllib.parse import urlparse
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-import zoo
 import boto3
 from loguru import logger
 from pystac import read_file
@@ -17,6 +16,22 @@ from kubernetes import client, config, watch
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
+try:
+    import zoo
+except ImportError:
+    logger.error("Zoo not found, using stub")
+    class ZooStub(object):
+        def __init__(self):
+            self.SERVICE_SUCCEEDED = 3
+            self.SERVICE_FAILED = 4
+
+        def update_status(self, conf, progress):
+            logger.info(f"Status {progress}")
+
+        def _(self, message):
+            logger.info(f"invoked _ with {message}")
+
+    zoo = ZooStub()
 
 @dataclass
 class StorageCredentials:
