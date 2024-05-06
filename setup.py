@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name="ades_v2",
     version="0.1",
-    packages=find_packages(),
+    packages=["ades_v2"],
     install_requires=[
         "boto3~=1.34.99",
         "requests~=2.31.0",
