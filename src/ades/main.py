@@ -2,28 +2,22 @@ import os
 import pathlib
 import json
 
+import zoo
 from loguru import logger
 import requests
 import yaml
 
-from argo_workflow import ArgoWorkflow, ContainerRegistry, JobInformation, WorkflowConfig, WorkflowStorageCredentials, WorkspaceCredentials, Endpoint, StorageCredentials
+from argo_workflow import (
+    ArgoWorkflow,
+    ContainerRegistry,
+    JobInformation,
+    WorkflowConfig,
+    WorkflowStorageCredentials,
+    WorkspaceCredentials,
+    Endpoint,
+    StorageCredentials,
+)
 
-try:
-    import zoo
-except ImportError:
-    logger.error("Zoo not found, using stub")
-    class ZooStub(object):
-        def __init__(self):
-            self.SERVICE_SUCCEEDED = 3
-            self.SERVICE_FAILED = 4
-
-        def update_status(self, conf, progress):
-            logger.info(f"Status {progress}")
-
-        def _(self, message):
-            logger.info(f"invoked _ with {message}")
-
-    zoo = ZooStub()
 
 class ADES:
     def __init__(self, conf, inputs, outputs):
