@@ -1,2 +1,2 @@
-from main import ADES
+from .main import ADES
 
