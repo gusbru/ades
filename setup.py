@@ -11,6 +11,6 @@ setup(
         "PyYAML~=6.0.1",
         "loguru~=0.7.2",
         "pystac~=1.10.1",
-        "kubernetes~=29.0.0"
+        "kubernetes~=28.1.0"
     ],
 )
