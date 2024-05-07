@@ -7,7 +7,7 @@ from loguru import logger
 import requests
 import yaml
 
-from argo_workflow import (
+from .argo_workflow import (
     ArgoWorkflow,
     ContainerRegistry,
     JobInformation,
@@ -64,9 +64,15 @@ class ADES:
 
     def load_workflow_template_from_file(self, file_name: str = "app-package.cwl"):
         logger.info(f"open file: {file_name}")
+
+        # this will read files from /opt/zooservices_user/<namespace>/<service_name>/<file_name>
+        zoo_service_namespace = self.conf["lenv"]["cwd"]
+        zoo_service_name = self.conf["lenv"]["Identifier"]
+        
         with open(
             os.path.join(
-                pathlib.Path(os.path.realpath(__file__)).parent.absolute(),
+                zoo_service_namespace,
+                zoo_service_name,
                 file_name,
             ),
             "r",
