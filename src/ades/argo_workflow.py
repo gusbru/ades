@@ -40,6 +40,14 @@ class ContainerRegistry:
     password: str
 
 
+@dataclass
+class WorkspaceCredentials:
+    status: str
+    endpoints: list[Endpoint]
+    storage: StorageCredentials
+    container_registry: ContainerRegistry
+
+
 class JobInformation:
     def __init__(self, conf: dict[str, Any]):
         self.conf = conf
