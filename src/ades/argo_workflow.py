@@ -119,7 +119,7 @@ class WorkflowStorageCredentials:
 class WorkflowConfig:
     conf: dict
     job_information: JobInformation
-    namespace: str = field(default=None)
+    namespace: Optional[str] = field(default=None)
     workflow_template: Optional[str] = field(default=None)
     workflow_id: Optional[str] = field(default=None)
     workflow_parameters: list[dict] = field(default_factory=list)
@@ -315,6 +315,42 @@ class ArgoWorkflow:
             namespace=self.job_namespace, body=role_binding_body
         )
 
+    def _create_job_information_configmap(self):
+        logger.info(
+            f"Creating job information configmap for namespace: {self.job_namespace}"
+        )
+        # Define ConfigMap metadata
+        metadata = client.V1ObjectMeta(
+            name="environment-variables", 
+            labels={"workflows.argoproj.io/configmap-type": "Parameter"}
+        )
+
+        # Define ConfigMap data
+        data = {
+            "job_information": json.dumps({
+                "WORKSPACE": self.job_information.workspace,
+                "WORKING_DIR": self.job_information.working_dir,
+                "PROCESS_IDENTIFIER": self.job_information.process_identifier,
+                "PROCESS_USID": self.job_information.process_usid,
+                "FEATURE_COLLECTION": self.feature_collection,
+                "INPUT_PARAMETERS": json.dumps(self.job_information.input_parameters),
+                "BUCKET_NAME": self.workflow_config.storage_credentials.bucketname,
+                "PROJECT_ID": self.workflow_config.storage_credentials.projectid,
+                "ENDPOINT": self.workflow_config.storage_credentials.endpoint,
+                "REGION": self.workflow_config.storage_credentials.region,
+            })
+        }
+
+        # Create ConfigMap object
+        config_map = client.V1ConfigMap(
+            api_version="v1", kind="ConfigMap", metadata=metadata, data=data
+        )
+
+        # Create ConfigMap
+        self.v1.create_namespaced_config_map(
+            namespace=self.job_namespace, body=config_map
+        )
+
     def _save_template_job_namespace(self):
         template_manifest = self.workflow_manifest
         logger.info(f"template_manifest = {json.dumps(template_manifest, indent=2)}")
@@ -469,6 +505,7 @@ class ArgoWorkflow:
         self._create_artifact_repository_configmap()
         self._create_job_role()
         self._create_job_role_binding()
+        self._create_job_information_configmap()
 
         # Template workflow needs to be on the same namespace as the job
         self._save_template_job_namespace()
@@ -486,6 +523,7 @@ class ArgoWorkflow:
         self._create_artifact_repository_configmap()
         self._create_job_role()
         self._create_job_role_binding()
+        self._create_job_information_configmap()
 
         # Template workflow needs to be on the same namespace as the job
         self._save_template_job_namespace()
