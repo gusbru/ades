@@ -508,6 +508,9 @@ class ArgoWorkflow:
 
         workflow = self._submit_workflow()
         exit_status = self.monitor_workflow(workflow)
+
+        self.save_workflow_logs()
+        
         return exit_status
 
     def run_workflow_from_file(self, workflow_file: dict):
@@ -526,7 +529,16 @@ class ArgoWorkflow:
 
         workflow = self._submit_workflow()
         exit_status = self.monitor_workflow(workflow)
+        
+        self.save_workflow_logs()
+        
         return exit_status
+    
+    def get_collection(self):
+        StacIO.set_default(CustomStacIO)
+        collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
+        logger.info(f"Getting collection at {collection_s3_path}")
+        return read_file(collection_s3_path)
 
     def save_workflow_logs(self, log_filename="logs.txt"):
         try:
@@ -561,10 +573,7 @@ class ArgoWorkflow:
                 f.write(f"\n{'='*80}\n")
 
             # get results
-            StacIO.set_default(CustomStacIO)
-            collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
-            logger.info(f"Getting collection at {collection_s3_path}")
-            collection = read_file(collection_s3_path)
+            collection = self.get_collection()
             self.feature_collection = json.dumps(collection.to_dict())
 
             #

@@ -1,5 +1,4 @@
 import os
-import pathlib
 import json
 
 import zoo
@@ -100,6 +99,23 @@ class ADES:
         r.raise_for_status()
         logger.info(f"Register processing results response: {r.status_code}")
 
+    def register_collection(self, job_information: JobInformation, collection: str):
+        os.environ.pop("HTTP_PROXY", None)
+        workspace_api_endpoint = "http://workspace-api.rm:8080"
+        collection_dict = json.loads(collection)
+        logger.info(f"registering collection = {collection}")
+        headers = {
+            "Content-Type": "application/json",
+        }
+        r = requests.post(
+            f"{workspace_api_endpoint}/workspaces/{job_information.workspace}/register-json",
+            json=collection_dict,
+            headers=headers,
+        )
+        r.raise_for_status()
+        logger.info(f"Register processing results response: {r.status_code}")
+
+
     def prepare_work_directory(self, job_information: JobInformation):
         os.makedirs(
             job_information.working_dir,
@@ -146,11 +162,13 @@ class ADES:
             argo_workflow = ArgoWorkflow(workflow_config=workflow_config)
             exit_status = argo_workflow.run_workflow_from_file(argo_template)
 
-            # handle the outputs
-            argo_workflow.save_workflow_logs()
-
             # if there is a collection_id on the input, add the processed item into that collection
             if exit_status == zoo.SERVICE_SUCCEEDED:
+                if self.inputs.get("destination_collection_id"):
+                    collection = argo_workflow.feature_collection
+                    logger.info("Registering collection")
+                    self.register_collection(job_information, collection)
+                
                 # Register Catalog
                 # TODO: consider more use cases
                 logger.info("Registering catalog")
