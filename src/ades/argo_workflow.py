@@ -40,14 +40,6 @@ class ContainerRegistry:
     password: str
 
 
-@dataclass
-class WorkspaceCredentials:
-    status: str
-    endpoints: list[Endpoint]
-    storage: StorageCredentials
-    container_registry: ContainerRegistry
-
-
 class JobInformation:
     def __init__(self, conf: dict[str, Any]):
         self.conf = conf
@@ -333,11 +325,7 @@ class ArgoWorkflow:
                 "PROCESS_IDENTIFIER": self.job_information.process_identifier,
                 "PROCESS_USID": self.job_information.process_usid,
                 "FEATURE_COLLECTION": self.feature_collection,
-                "INPUT_PARAMETERS": json.dumps(self.job_information.input_parameters),
-                "BUCKET_NAME": self.workflow_config.storage_credentials.bucketname,
-                "PROJECT_ID": self.workflow_config.storage_credentials.projectid,
-                "ENDPOINT": self.workflow_config.storage_credentials.endpoint,
-                "REGION": self.workflow_config.storage_credentials.region,
+                "INPUT_PARAMETERS": json.dumps(self.job_information.input_parameters)
             })
         }
 
