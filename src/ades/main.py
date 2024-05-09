@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Any
 
 import zoo
 from loguru import logger
@@ -61,7 +62,7 @@ class ADES:
             container_registry=container_registry,
         )
 
-    def load_workflow_template_from_file(self, file_name: str = "app-package.cwl"):
+    def load_workflow_template_from_file(self, file_name: str = "app-package.cwl") -> dict[str, Any]:
         logger.info(f"open file: {file_name}")
 
         # this will read files from /opt/zooservices_user/<namespace>/<service_name>/<file_name>
@@ -129,7 +130,7 @@ class ADES:
             logger.info("Starting execute runner")
             argo_template = self.load_workflow_template_from_file()
 
-            job_information = JobInformation(self.conf)
+            job_information = JobInformation(conf=self.conf, inputs=self.inputs)
             logger.info(job_information)
 
             self.prepare_work_directory(job_information)
@@ -164,7 +165,7 @@ class ADES:
 
             # if there is a collection_id on the input, add the processed item into that collection
             if exit_status == zoo.SERVICE_SUCCEEDED:
-                if self.inputs.get("destination_collection_id"):
+                if job_information.destination_collection_id:
                     collection = argo_workflow.feature_collection
                     logger.info("Registering collection")
                     self.register_collection(job_information, collection)

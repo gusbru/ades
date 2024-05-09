@@ -49,14 +49,16 @@ class WorkspaceCredentials:
 
 
 class JobInformation:
-    def __init__(self, conf: dict[str, Any]):
+    def __init__(self, conf: dict[str, Any], inputs: dict[str, Any]):
         self.conf = conf
+        self.inputs = inputs
         self.tmp_path = conf["main"]["tmpPath"]
         self.process_identifier = conf["lenv"]["Identifier"]
         self.process_usid = conf["lenv"]["usid"]
         self.namespace = conf.get("zooServicesNamespace", {}).get("namespace", "")
         self.workspace_prefix = conf.get("eoepca", {}).get("workspace_prefix", "ws")
         self.input_parameters = self._parse_input_parameters()
+        self.destination_collection_id = inputs.get("destination_collection_id")
 
     @property
     def workspace(self):
@@ -96,6 +98,8 @@ class JobInformation:
         process_usid = {self.process_usid}
         workspace = {self.workspace}
         working_dir = {self.working_dir}
+        namespace = {self.namespace}
+        destination_collection_id = {self.destination_collection_id}
         input_parameters = {json.dumps(self.input_parameters, indent=2)}
         *****************************************************
         """
@@ -184,7 +188,7 @@ class ArgoWorkflow:
         self.workflow_config = workflow_config
         self.conf = workflow_config.conf
         self.job_namespace: Optional[str] = None
-        self.workflow_manifest = None
+        self.workflow_manifest: Optional[dict[str, Any]] = None
         self.feature_collection = json.dumps({}, indent=2)
         self.job_information = workflow_config.job_information
 
@@ -510,10 +514,10 @@ class ArgoWorkflow:
         exit_status = self.monitor_workflow(workflow)
 
         self.save_workflow_logs()
-        
+
         return exit_status
 
-    def run_workflow_from_file(self, workflow_file: dict):
+    def run_workflow_from_file(self, workflow_file: dict[str, Any]):
         self.workflow_manifest = workflow_file
         # Create the namespace, access key, and secret key
         logger.info("Creating namespace, roles, and storage secrets")
