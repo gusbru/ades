@@ -382,7 +382,7 @@ class ArgoWorkflow:
             raise e
 
     def save_workflow_template(
-        self, template_manifest: dict = None, namespace: Optional[str] = None
+        self, template_manifest: dict[str, Any], namespace: Optional[str] = None
     ):
         try:
             # Create the template
@@ -436,7 +436,7 @@ class ArgoWorkflow:
 
         return workflow
 
-    def _update_status(self, progress: int, message: str = None) -> None:
+    def _update_status(self, progress: int, message: Optional[str] = None) -> None:
         """updates the execution progress (%) and provides an optional message"""
         if message:
             self.conf["lenv"]["message"] = message
@@ -540,7 +540,8 @@ class ArgoWorkflow:
     
     def get_collection(self):
         StacIO.set_default(CustomStacIO)
-        collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
+        # collection.json is stored in a folder with the structure: s3://workspace/processing-results/{job_id}/{destination_collection_id}/collection.json
+        collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/{self.job_information.destination_collection_id}/collection.json"
         logger.info(f"Getting collection at {collection_s3_path}")
         return read_file(collection_s3_path)
 
@@ -578,7 +579,7 @@ class ArgoWorkflow:
 
             # get results
             collection = self.get_collection()
-            self.feature_collection = json.dumps(collection.to_dict())
+            self.feature_collection = json.dumps(collection.to_dict(transform_hrefs=False))
 
             #
             servicesLogs = {
