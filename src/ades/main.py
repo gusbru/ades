@@ -165,10 +165,9 @@ class ADES:
 
             # if there is a collection_id on the input, add the processed item into that collection
             if exit_status == zoo.SERVICE_SUCCEEDED:
-                if job_information.destination_collection_id:
-                    collection = argo_workflow.feature_collection
-                    logger.info("Registering collection")
-                    self.register_collection(job_information, collection)
+                collection = argo_workflow.feature_collection
+                logger.info("Registering collection")
+                self.register_collection(job_information, collection)
                 
                 # Register Catalog
                 # TODO: consider more use cases

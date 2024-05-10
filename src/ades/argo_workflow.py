@@ -58,7 +58,6 @@ class JobInformation:
         self.namespace = conf.get("zooServicesNamespace", {}).get("namespace", "")
         self.workspace_prefix = conf.get("eoepca", {}).get("workspace_prefix", "ws")
         self.input_parameters = self._parse_input_parameters()
-        self.destination_collection_id = inputs.get("destination_collection_id")
 
     @property
     def workspace(self):
@@ -99,7 +98,6 @@ class JobInformation:
         workspace = {self.workspace}
         working_dir = {self.working_dir}
         namespace = {self.namespace}
-        destination_collection_id = {self.destination_collection_id}
         input_parameters = {json.dumps(self.input_parameters, indent=2)}
         *****************************************************
         """
@@ -540,8 +538,7 @@ class ArgoWorkflow:
     
     def get_collection(self):
         StacIO.set_default(CustomStacIO)
-        # collection.json is stored in a folder with the structure: s3://workspace/processing-results/{job_id}/{destination_collection_id}/collection.json
-        collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/{self.job_information.destination_collection_id}/collection.json"
+        collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
         logger.info(f"Getting collection at {collection_s3_path}")
         return read_file(collection_s3_path)
 
