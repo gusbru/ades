@@ -542,7 +542,7 @@ class ArgoWorkflow:
         logger.info(f"Getting collection at {collection_s3_path}")
         return read_file(collection_s3_path)
 
-    def save_workflow_logs(self, log_filename="logs.txt"):
+    def save_workflow_logs(self, log_filename="logs.log"):
         try:
             logger.info(
                 f"Getting logs for workflow {self.workflow_config.workflow_id} in namespace {self.job_namespace}"
