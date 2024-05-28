@@ -473,7 +473,7 @@ class ArgoWorkflow:
                 )
 
                 # need to save this on the logs?
-                logger.info(json.dumps(data, indent=2))
+                # logger.info(json.dumps(data, indent=2))
                 self._update_status(100, phase_data)
                 w.stop()
 
@@ -557,19 +557,23 @@ class ArgoWorkflow:
                     if self.workflow_config.workflow_id not in pod.metadata.name:
                         continue
 
-                    logger.info(f"Getting logs for pod {pod.metadata.name}")
-                    f.write(f"{'='*80}\n")
-                    f.write(f"Logs for pod {pod.metadata.name}:\n")
-                    f.write(f"{'='*80}\n")
-                    for container in pod.spec.containers:
-                        f.write(f"Container {container.name}:\n")
-                        f.write(
-                            self.v1.read_namespaced_pod_log(
-                                name=pod.metadata.name,
-                                namespace=self.job_namespace,
-                                container=container.name,
+                    try:
+                        logger.info(f"Getting logs for pod {pod.metadata.name}")
+                        f.write(f"{'='*80}\n")
+                        f.write(f"Logs for pod {pod.metadata.name}:\n")
+                        f.write(f"{'='*80}\n")
+                        for container in pod.spec.containers:
+                            f.write(f"Container {container.name}:\n")
+                            f.write(
+                                self.v1.read_namespaced_pod_log(
+                                    name=pod.metadata.name,
+                                    namespace=self.job_namespace,
+                                    container=container.name,
+                                )
                             )
-                        )
+                    except Exception as e:
+                        logger.error(f"Error getting logs for pod {pod.metadata.name}: {e}")
+                        
 
                 logger.info(f"Logs saved to {log_filename}")
                 f.write(f"\n{'='*80}\n")
@@ -599,7 +603,7 @@ class ArgoWorkflow:
 
         except Exception as e:
             logger.error(f"Error getting logs: {e}")
-            raise e
+            # raise e
 
     def delete_workflow(self):
         try:
