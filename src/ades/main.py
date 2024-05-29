@@ -189,7 +189,9 @@ class ADES:
                 exit_status = zoo.SERVICE_FAILED
 
             # Clean up the namespace
-            # argo_workflow.delete_workflow()
+            if os.environ.get("NAMESPACE_CLEANUP") == "True":
+                logger.info("Cleaning up namespace")
+                argo_workflow.delete_namespace()
 
             return exit_status
 
