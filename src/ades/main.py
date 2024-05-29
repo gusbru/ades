@@ -191,7 +191,7 @@ class ADES:
             # Clean up the namespace
             if os.environ.get("NAMESPACE_CLEANUP") is not None:
                 logger.info("Cleaning up namespace")
-                argo_workflow.delete_namespace()
+                argo_workflow.delete_workflow()
 
             return exit_status
 
