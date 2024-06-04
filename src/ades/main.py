@@ -47,6 +47,7 @@ class ADES:
         container_registry = ContainerRegistry(
             username=response_api["container_registry"]["username"],
             password=response_api["container_registry"]["password"],
+            url=response_api["container_registry"]["url"],
         )
 
         # set environment variables
@@ -62,13 +63,15 @@ class ADES:
             container_registry=container_registry,
         )
 
-    def load_workflow_template_from_file(self, file_name: str = "app-package.cwl") -> dict[str, Any]:
+    def load_workflow_template_from_file(
+        self, file_name: str = "app-package.cwl"
+    ) -> dict[str, Any]:
         logger.info(f"open file: {file_name}")
 
         # this will read files from /opt/zooservices_user/<namespace>/<service_name>/<file_name>
         zoo_service_namespace = self.conf["lenv"]["cwd"]
         zoo_service_name = self.conf["lenv"]["Identifier"]
-        
+
         with open(
             os.path.join(
                 zoo_service_namespace,
@@ -116,7 +119,6 @@ class ADES:
         r.raise_for_status()
         logger.info(f"Register processing results response: {r.status_code}")
 
-
     def prepare_work_directory(self, job_information: JobInformation):
         os.makedirs(
             job_information.working_dir,
@@ -156,6 +158,10 @@ class ADES:
                     access_key=workspace_credentials.storage.access,
                     secret_key=workspace_credentials.storage.secret,
                 ),
+                container_registry=ContainerRegistry(
+                    username=workspace_credentials.container_registry.username,
+                    password=workspace_credentials.container_registry.password,
+                ),
             )
 
             # run the workflow
@@ -168,7 +174,7 @@ class ADES:
                 collection = argo_workflow.feature_collection
                 logger.info("Registering collection")
                 self.register_collection(job_information, collection)
-                
+
                 # Register Catalog
                 # TODO: consider more use cases
                 logger.info("Registering catalog")

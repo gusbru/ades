@@ -19,3 +19,4 @@ temp*
 runs
 *.ipynb
 .env
+.venv

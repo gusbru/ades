@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import base64
 from urllib.parse import urlparse
 from dataclasses import dataclass, field
 from typing import Any, Optional
@@ -16,6 +17,11 @@ from kubernetes import client, config, watch
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
+
+
+def remove_protocol(url: str):
+    parsed = urlparse(url)
+    return parsed.netloc + parsed.path
 
 
 @dataclass
@@ -38,6 +44,7 @@ class Endpoint:
 class ContainerRegistry:
     username: str
     password: str
+    url: str
 
 
 @dataclass
@@ -125,7 +132,8 @@ class WorkflowConfig:
     workflow_template: Optional[str] = field(default=None)
     workflow_id: Optional[str] = field(default=None)
     workflow_parameters: list[dict] = field(default_factory=list)
-    storage_credentials: Optional[WorkflowStorageCredentials] = field(default=None)
+    storage_credentials: WorkflowStorageCredentials
+    container_registry: ContainerRegistry
 
     def __post_init__(self):
         self.namespace = self.job_information.workspace
@@ -214,7 +222,7 @@ class ArgoWorkflow:
         self.v1.create_namespace(body=namespace_body)
 
     # Create storage secret on K8s
-    def _create_job_secret(self):
+    def _create_storage_secret(self):
         logger.info(f"Creating storage secrets for namespace: {self.job_namespace}")
         secret_body = client.V1Secret(
             metadata=client.V1ObjectMeta(
@@ -226,6 +234,50 @@ class ArgoWorkflow:
             },
         )
         self.v1.create_namespaced_secret(namespace=self.job_namespace, body=secret_body)
+
+    # Create container registry secret on K8s
+    def _create_container_registry_secret(self):
+        logger.info(
+            f"Creating container registry secrets for namespace: {self.job_namespace}"
+        )
+
+        # Configure the secret
+        secret = client.V1Secret()
+        secret.api_version = "v1"
+        secret.kind = "Secret"
+        secret.type = "kubernetes.io/dockerconfigjson"
+        secret.metadata = client.V1ObjectMeta(name="container-registry-credentials")
+
+        # Create the .dockerconfigjson
+        docker_config = {
+            "auths": {
+                remove_protocol(self.workflow_config.container_registry.url): {
+                    "username": self.workflow_config.container_registry.username,
+                    "password": self.workflow_config.container_registry.password,
+                }
+            }
+        }
+
+        # Encode the .dockerconfigjson
+        docker_config_bytes = bytes(json.dumps(docker_config), "utf-8")
+        docker_config_base64 = base64.b64encode(docker_config_bytes)
+
+        # Add the .dockerconfigjson to the secret
+        secret.data = {".dockerconfigjson": docker_config_base64.decode("utf-8")}
+
+        # Create the secret
+        self.v1.create_namespaced_secret(namespace=self.job_namespace, body=secret)
+
+        # Add the secret to the default service account
+        service_account = self.v1.read_namespaced_service_account(
+            name="default", namespace=self.job_namespace
+        )
+        service_account.secrets.append(
+            client.V1ObjectReference(name="container-registry-credentials")
+        )
+        self.v1.replace_namespaced_service_account(
+            name="default", namespace=self.job_namespace, body=service_account
+        )
 
     def _create_artifact_repository_configmap(self):
         logger.info(
@@ -323,20 +375,24 @@ class ArgoWorkflow:
         )
         # Define ConfigMap metadata
         metadata = client.V1ObjectMeta(
-            name="environment-variables", 
-            labels={"workflows.argoproj.io/configmap-type": "Parameter"}
+            name="environment-variables",
+            labels={"workflows.argoproj.io/configmap-type": "Parameter"},
         )
 
         # Define ConfigMap data
         data = {
-            "job_information": json.dumps({
-                "WORKSPACE": self.job_information.workspace,
-                "WORKING_DIR": self.job_information.working_dir,
-                "PROCESS_IDENTIFIER": self.job_information.process_identifier,
-                "PROCESS_USID": self.job_information.process_usid,
-                "FEATURE_COLLECTION": self.feature_collection,
-                "INPUT_PARAMETERS": json.dumps(self.job_information.input_parameters)
-            })
+            "job_information": json.dumps(
+                {
+                    "WORKSPACE": self.job_information.workspace,
+                    "WORKING_DIR": self.job_information.working_dir,
+                    "PROCESS_IDENTIFIER": self.job_information.process_identifier,
+                    "PROCESS_USID": self.job_information.process_usid,
+                    "FEATURE_COLLECTION": self.feature_collection,
+                    "INPUT_PARAMETERS": json.dumps(
+                        self.job_information.input_parameters
+                    ),
+                }
+            )
         }
 
         # Create ConfigMap object
@@ -499,7 +555,8 @@ class ArgoWorkflow:
         # Create the namespace, access key, and secret key
         logger.info("Creating namespace, roles, and storage secrets")
         self._create_job_namespace()
-        self._create_job_secret()
+        self._create_storage_secret()
+        self._create_container_registry_secret()
         self._create_artifact_repository_configmap()
         self._create_job_role()
         self._create_job_role_binding()
@@ -520,7 +577,8 @@ class ArgoWorkflow:
         # Create the namespace, access key, and secret key
         logger.info("Creating namespace, roles, and storage secrets")
         self._create_job_namespace()
-        self._create_job_secret()
+        self._create_storage_secret()
+        self._create_container_registry_secret()
         self._create_artifact_repository_configmap()
         self._create_job_role()
         self._create_job_role_binding()
@@ -531,11 +589,11 @@ class ArgoWorkflow:
 
         workflow = self._submit_workflow()
         exit_status = self.monitor_workflow(workflow)
-        
+
         self.save_workflow_logs()
-        
+
         return exit_status
-    
+
     def get_collection(self):
         StacIO.set_default(CustomStacIO)
         collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
@@ -572,15 +630,18 @@ class ArgoWorkflow:
                                 )
                             )
                     except Exception as e:
-                        logger.error(f"Error getting logs for pod {pod.metadata.name}: {e}")
-                        
+                        logger.error(
+                            f"Error getting logs for pod {pod.metadata.name}: {e}"
+                        )
 
                 logger.info(f"Logs saved to {log_filename}")
                 f.write(f"\n{'='*80}\n")
 
             # get results
             collection = self.get_collection()
-            self.feature_collection = json.dumps(collection.to_dict(transform_hrefs=False))
+            self.feature_collection = json.dumps(
+                collection.to_dict(transform_hrefs=False)
+            )
 
             #
             servicesLogs = {
