@@ -25,15 +25,13 @@ class ADES:
         self.inputs = inputs
         self.outputs = outputs
 
-    def get_credentials(sefl, workspace: str) -> WorkspaceCredentials:
+    def get_credentials(self, workspace: str) -> WorkspaceCredentials:
         os.environ.pop("HTTP_PROXY", None)
         logger.info("Getting credentials")
         response = requests.get(f"http://workspace-api.rm:8080/workspaces/{workspace}")
         response.raise_for_status()
 
         response_api = response.json()
-
-        logger.info(f"response_api = {json.dumps(response_api, indent=4)}")
 
         endpoints = [
             Endpoint(id=e["id"], url=e["url"]) for e in response_api["endpoints"]
@@ -161,15 +159,8 @@ class ADES:
             workflow_config = WorkflowConfig(
                 conf=self.conf,
                 job_information=job_information,
-                storage_credentials=WorkflowStorageCredentials(
-                    url=workspace_credentials.storage.endpoint,
-                    access_key=workspace_credentials.storage.access,
-                    secret_key=workspace_credentials.storage.secret,
-                ),
-                container_registry=ContainerRegistry(
-                    username=workspace_credentials.container_registry.username,
-                    password=workspace_credentials.container_registry.password,
-                ),
+                storage_credentials=workspace_credentials.storage,
+                container_registry=workspace_credentials.container_registry,
             )
 
             # run the workflow
