@@ -132,8 +132,8 @@ class WorkflowConfig:
     workflow_template: Optional[str] = field(default=None)
     workflow_id: Optional[str] = field(default=None)
     workflow_parameters: list[dict] = field(default_factory=list)
-    storage_credentials: WorkflowStorageCredentials
-    container_registry: ContainerRegistry
+    storage_credentials: Optional[WorkflowStorageCredentials] = field(default=None)
+    container_registry: Optional[ContainerRegistry] = field(default=None)
 
     def __post_init__(self):
         self.namespace = self.job_information.workspace
