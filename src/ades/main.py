@@ -33,9 +33,13 @@ class ADES:
 
         response_api = response.json()
 
+        logger.info(f"response_api = {json.dumps(response_api, indent=4)}")
+
         endpoints = [
             Endpoint(id=e["id"], url=e["url"]) for e in response_api["endpoints"]
         ]
+
+        logger.info("Creating StorageCredentials")
         storage = StorageCredentials(
             access=response_api["storage"]["credentials"]["access"],
             bucketname=response_api["storage"]["credentials"]["bucketname"],
@@ -44,6 +48,8 @@ class ADES:
             endpoint=response_api["storage"]["credentials"]["endpoint"],
             region=response_api["storage"]["credentials"]["region"],
         )
+
+        logger.info("Creating ContainerRegistry")
         container_registry = ContainerRegistry(
             username=response_api["container_registry"]["username"],
             password=response_api["container_registry"]["password"],
@@ -51,11 +57,13 @@ class ADES:
         )
 
         # set environment variables
+        logger.info("Setting environment variables")
         os.environ["AWS_REGION"] = storage.region
         os.environ["AWS_S3_ENDPOINT"] = storage.endpoint
         os.environ["AWS_ACCESS_KEY_ID"] = storage.access
         os.environ["AWS_SECRET_ACCESS_KEY"] = storage.secret
 
+        logger.info("Creating WorkspaceCredentials")
         return WorkspaceCredentials(
             status=response_api["status"],
             endpoints=endpoints,
@@ -142,7 +150,7 @@ class ADES:
             # run workflow on Argo
             # from API
             logger.info(
-                f"preparing job on workspace {job_information.workspace} with process (workflow) {job_information.process_usid}"
+                f"Preparing job on workspace {job_information.workspace} with process (workflow) {job_information.process_usid}"
             )
 
             # get Storage credentials from workspace-api.
