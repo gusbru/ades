@@ -272,6 +272,10 @@ class ArgoWorkflow:
         service_account = self.v1.read_namespaced_service_account(
             name="default", namespace=self.job_namespace
         )
+        
+        if service_account.secrets is None:
+            service_account.secrets = []
+        
         service_account.secrets.append(
             client.V1ObjectReference(name="container-registry-credentials")
         )
@@ -574,6 +578,8 @@ class ArgoWorkflow:
 
     def run_workflow_from_file(self, workflow_file: dict[str, Any]):
         self.workflow_manifest = workflow_file
+
+        ### This part will be moved to workspace-api -> create workspace
         # Create the namespace, access key, and secret key
         logger.info("Creating namespace, roles, and storage secrets")
         self._create_job_namespace()
@@ -583,6 +589,7 @@ class ArgoWorkflow:
         self._create_job_role()
         self._create_job_role_binding()
         self._create_job_information_configmap()
+        ####################################################################
 
         # Template workflow needs to be on the same namespace as the job
         self._save_template_job_namespace()
