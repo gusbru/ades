@@ -244,7 +244,7 @@ class ArgoWorkflow:
         # Configure the secret
         secret = client.V1Secret()
         secret.api_version = "v1"
-        secret.kind = "Secret"
+        secret.kind = "imagePullSecrets"
         secret.type = "kubernetes.io/dockerconfigjson"
         secret.metadata = client.V1ObjectMeta(name="container-registry-credentials")
 
