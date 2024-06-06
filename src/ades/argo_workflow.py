@@ -244,7 +244,7 @@ class ArgoWorkflow:
         # Configure the secret
         secret = client.V1Secret()
         secret.api_version = "v1"
-        secret.kind = "imagePullSecrets"
+        secret.kind = "Secret"
         secret.type = "kubernetes.io/dockerconfigjson"
         secret.metadata = client.V1ObjectMeta(name="container-registry-credentials")
 
@@ -273,10 +273,10 @@ class ArgoWorkflow:
             name="default", namespace=self.job_namespace
         )
         
-        if service_account.secrets is None:
-            service_account.secrets = []
+        if service_account.image_pull_secrets is None:
+            service_account.image_pull_secrets = []
         
-        service_account.secrets.append(
+        service_account.image_pull_secrets.append(
             client.V1ObjectReference(name="container-registry-credentials")
         )
         self.v1.replace_namespaced_service_account(
