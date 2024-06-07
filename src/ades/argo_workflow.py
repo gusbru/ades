@@ -164,42 +164,6 @@ class ArgoWorkflow:
         self.rbac_v1 = client.RbacAuthorizationV1Api()
         self.custom_api = client.CustomObjectsApi()
 
-    def _create_job_env_variables_configmap(self):
-        logger.info(
-            f"Creating job information configmap for namespace: {self.job_namespace}"
-        )
-        # Define ConfigMap metadata
-        metadata = client.V1ObjectMeta(
-            name=f"env-variables-{self.job_information.process_usid}",
-            labels={"workflows.argoproj.io/configmap-type": "Parameter"},
-        )
-
-        # Define ConfigMap data
-        data = {
-            "job_information": json.dumps(
-                {
-                    "WORKSPACE": self.job_information.workspace,
-                    "WORKING_DIR": self.job_information.working_dir,
-                    "PROCESS_IDENTIFIER": self.job_information.process_identifier,
-                    "PROCESS_USID": self.job_information.process_usid,
-                    "FEATURE_COLLECTION": self.feature_collection,
-                    "INPUT_PARAMETERS": json.dumps(
-                        self.job_information.input_parameters
-                    ),
-                }
-            )
-        }
-
-        # Create ConfigMap object
-        config_map = client.V1ConfigMap(
-            api_version="v1", kind="ConfigMap", metadata=metadata, data=data
-        )
-
-        # Create ConfigMap
-        self.v1.create_namespaced_config_map(
-            namespace=self.job_namespace, body=config_map
-        )
-
     def _save_template_job_namespace(self):
         logger.debug(
             f"template_manifest = {json.dumps(self.workflow_manifest, indent=2)}"
@@ -361,10 +325,6 @@ class ArgoWorkflow:
                 # Load the workflow template
                 logger.info("Loading workflow template")
                 self.workflow_manifest = self._load_workflow_template()
-
-            # Create configmap with Job information
-            logger.info("Creating job information configmap")
-            self._create_job_env_variables_configmap()
 
             # Template workflow needs to be on the same namespace as the job
             self._save_template_job_namespace()
