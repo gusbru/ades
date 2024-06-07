@@ -1,0 +1,3465 @@
+2024-05-05 22:03:36.203 | INFO     | water-bodies-argo.service:water_bodies_argo:1023 - conf = {
+    "main": {
+        "encoding": "utf-8",
+        "version": "1.0.0",
+        "serverAddress": "http://127.0.0.1",
+        "language": "en-US",
+        "lang": "fr-FR,en-CA,en-US",
+        "tmpPath": "/tmp/zTmp",
+        "tmpUrl": "https://zoo.mkube.dec.earthdaily.com/temp/",
+        "mapserverAddress": "https://zoo.mkube.dec.earthdaily.com/cgi-bin/mapserv",
+        "dataPath": "/usr/com/zoo-project",
+        "cacheDir": "/tmp/zTmp",
+        "templatesPath": "/var/www/",
+        "search_path": "true",
+        "executionType": "json",
+        "rversion": "1.0.0",
+        "extra_supported_codes": "201"
+    },
+    "identification": {
+        "title": "ZOO-Project with Deploy, Replace, Undeploy and CWL support",
+        "abstract_file": "/var/www/header.md",
+        "fees": "None",
+        "accessConstraints": "none",
+        "keywords": "WPS,GIS,buffer"
+    },
+    "provider": {
+        "providerName": "ZOO-Project",
+        "providerSite": "http://www.zoo-project.org",
+        "individualName": "Gerald FENOY",
+        "positionName": "Developer",
+        "role": "Dev",
+        "addressDeliveryPoint": "1280, avenue des Platanes",
+        "addressCity": "Lattes",
+        "addressAdministrativeArea": "False",
+        "addressPostalCode": "34970",
+        "addressCountry": "fr",
+        "addressElectronicMailAddress": "gerald.fenoy@geolabs.fr",
+        "phoneVoice": "False",
+        "phoneFacsimile": "False"
+    },
+    "env": {
+        "PYTHONPATH": "/usr/miniconda3/envs/ades-dev/lib/python3.8/site-packages",
+        "CONTEXT_DOCUMENT_ROOT": "/usr/lib/cgi-bin/",
+        "SERVICES_NAMESPACE": "bob"
+    },
+    "database": {
+        "dbname": "zoo",
+        "port": "5432",
+        "user": "zoo",
+        "password": "zoo",
+        "host": "zoo-project-dru-postgresql",
+        "type": "PG",
+        "schema": "public"
+    },
+    "metadb": {
+        "dbname": "zoo",
+        "port": "5432",
+        "user": "zoo",
+        "password": "zoo",
+        "host": "zoo-project-dru-postgresql",
+        "type": "PG",
+        "schema": "public"
+    },
+    "security": {
+        "attributes": "Authorization,Cookie,User-Agent",
+        "hosts": "*"
+    },
+    "cookiecutter": {
+        "configurationFile": "/tmp/zTmp/cookiecutter_config.yaml",
+        "templatesPath": "/tmp/zTmp/cookiecutter-templates",
+        "templateUrl": "https://github.com/gusbru/eoepca-proc-service-template.git",
+        "templateBranch": "testArgo"
+    },
+    "servicesNamespace": {
+        "path": "/opt/zooservices_user",
+        "deploy_service_provider": "DeployProcess",
+        "undeploy_service_provider": "UndeployProcess",
+        "has_jwt_service": "true",
+        "sections_list": "auth_env,additional_parameters,pod_env_vars,pod_node_selector,eoepca"
+    },
+    "eoepca": {
+        "domain": "mkube.dec.earthdaily.com",
+        "registration_api_url": "https://registration-api.mkube.dec.earthdaily.com",
+        "resource_catalog_api_url": "https://resource-catalog.mkube.dec.earthdaily.com",
+        "workspace_url": "https://workspace-api.mkube.dec.earthdaily.com",
+        "workspace_prefix": "ws"
+    },
+    "headers": {
+        "X-Powered-By": "ZOO-Project-DRU"
+    },
+    "rabbitmq": {
+        "host": "zoo-project-dru-rabbitmq",
+        "port": "5672",
+        "user": "guest",
+        "passwd": "guest",
+        "exchange": "amq.direct",
+        "routingkey": "zoo",
+        "queue": "zoo_service_queue"
+    },
+    "server": {
+        "async_worker": "70"
+    },
+    "openapi": {
+        "use_content": "false",
+        "rootUrl": "https://zoo.mkube.dec.earthdaily.com/ogc-api",
+        "rootHost": "https://zoo.mkube.dec.earthdaily.com",
+        "rootPath": "ogc-api",
+        "links": "/,/api,/conformance,/processes,/jobs",
+        "paths": "/root,/conformance,/api,/processes,/processes/water-bodies,/processes/{processID},/processes/water-bodies/execution,/processes/{processID}/execution,/jobs,/jobs/{jobID},/jobs/{jobID}/results",
+        "parameters": "processID,jobID,resultID",
+        "header_parameters": "oas-header1,oas-header2,oas-header3,oas-header4,oas-header5,limitParam,skipParam,processIdParam,statusParam,minDurationParam,maxDurationParam,typeParam,datetimeParam,wParam",
+        "version": "3.0.3",
+        "license_name": "OGC license",
+        "license_url": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/LICENSE",
+        "full_html_support": "false",
+        "partial_html_support": "false",
+        "wsUrl": "wss://zoo.mkube.dec.earthdaily.com:8888/",
+        "publisherUrl": "http://zookernel/cgi-bin/publish.py?jobid=",
+        "link_href": "http://zoo-project.org/dl/link.json",
+        "tags": "Browse the API,List - deploy - get detailed information about processes,Execute process - monitor job - access the result,Jobs management,Processes management,Other endpoints",
+        "examplesPath": "/var/www/html/examples/",
+        "examplesUrl": "https://zoo.mkube.dec.earthdaily.com/examples/",
+        "exceptionsUrl": "http://www.opengis.net/def/rel/ogc/1.0/exception",
+        "exceptionsUrl_1": "http://www.opengis.net/def/exceptions/ogcapi-processes-2/1.0",
+        "use_problem_json_content_type_for_exception": "true"
+    },
+    "tags": {
+        "length": "6",
+        "value": "From the landing page we can list links exposed by the API, it should contains a link to `/conformance` to use to know what are the server capabilities.",
+        "value_1": "From this section, we can list available processes, deploy new processes then get detailled description of the created process",
+        "value_2": "From this section, we can execute processes to create jobs, monitor these jobs during their execution then access the resulting data",
+        "value_3": "From this section, we can list or dismiss jobs",
+        "value_4": "From this section, we can modify or remove deployed processes",
+        "value_5": "From this section, we can access the process description and the execution endpoint for any processes"
+    },
+    "oas-header1": {
+        "in": "header",
+        "name": "Prefer",
+        "type": "string",
+        "required": "true",
+        "enum": "return=representation,return=minimal,respond-async;return=representation",
+        "enum1": "return=representation,return=minimal,respond-async;return=representation,respond-async;return=minimal"
+    },
+    "oas-header2": {
+        "in": "header",
+        "name": "Prefer",
+        "type": "string",
+        "required": "false",
+        "enum": "return=representation,return=minimal"
+    },
+    "oas-header3": {
+        "in": "header",
+        "name": "Prefer",
+        "type": "string",
+        "required": "true",
+        "enum": "respond-async;return=representation"
+    },
+    "oas-header4": {
+        "in": "header",
+        "name": "Prefer",
+        "type": "string",
+        "required": "true",
+        "enum": "return=minimal"
+    },
+    "oas-header5": {
+        "in": "header",
+        "name": "Prefer",
+        "type": "string",
+        "required": "true",
+        "enum": "return=representation"
+    },
+    "limitParam": {
+        "name": "limit",
+        "title": "The limit parameter",
+        "abstract": "The limit parameter indicates the number of elements to return in an array",
+        "in": "query",
+        "type": "integer",
+        "schema_minimum": "1",
+        "schema_maximum": "10000",
+        "schema_default": "1000",
+        "required": "false"
+    },
+    "skipParam": {
+        "name": "skip",
+        "title": "The skip parameter",
+        "abstract": "The skip parameter indicates the number of elements to skip before starting returning values in an array",
+        "in": "query",
+        "type": "integer",
+        "schema_minimum": "0",
+        "required": "false"
+    },
+    "wParam": {
+        "name": "w",
+        "title": "The workflow id parameter",
+        "abstract": "The workflow parameter indicates the name of an existing entry point within the CWL workflow definition associated with",
+        "in": "query",
+        "type": "string",
+        "schema_default": "water-bodies",
+        "required": "false"
+    },
+    "/": {
+        "rel": "self",
+        "type": "application/json",
+        "title": "this document"
+    },
+    "root": {
+        "method": "get",
+        "title": "landing page of this API",
+        "abstract": "The landing page provides links to the API definition, the Conformance statements and the metadata about the processes offered by this service.",
+        "tags": "Browse the API",
+        "operationId": "get_root",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/LandingPage.yaml"
+    },
+    "/index.html": {
+        "rel": "alternate",
+        "type": "text/html"
+    },
+    "/api": {
+        "rel": "service-desc",
+        "type": "application/vnd.oai.openapi+json;version=3.0",
+        "title": "the API definition"
+    },
+    "/api.html": {
+        "rel": "service-doc",
+        "type": "text/html"
+    },
+    "api.html": {
+        "href": "https://zoo.mkube.dec.earthdaily.com/swagger-ui/oapip/"
+    },
+    "api": {
+        "method": "get",
+        "title": "This document",
+        "abstract": "This document",
+        "tags": "Browse the API",
+        "operationId": "get_api"
+    },
+    "/conformance": {
+        "rel": "http://www.opengis.net/def/rel/ogc/1.0/conformance",
+        "type": "application/json",
+        "title": "OGC API - Processes conformance classes implemented by this server"
+    },
+    "conformance": {
+        "method": "get",
+        "title": "information about standards that this API conforms to",
+        "abstract": "List all conformance classes specified in the OGC API - Processes - Part 1: Core standard that the server conforms to",
+        "tags": "Browse the API",
+        "operationId": "get_conformance",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/ConformanceDeclaration.yaml"
+    },
+    "/conformance.html": {
+        "rel": "alternate",
+        "type": "text/html"
+    },
+    "/processes": {
+        "rel": "http://www.opengis.net/def/rel/ogc/1.0/processes",
+        "type": "application/json",
+        "title": "The processes offered by this server"
+    },
+    "processes": {
+        "length": "2",
+        "method": "get",
+        "title": "retrieve available processes",
+        "abstract": "Information about the available processes",
+        "abstract_file": "/var/www/processes-list.md",
+        "tags": "List - deploy - get detailed information about processes",
+        "parameters": "/components/parameters/limitParam,/components/parameters/skipParam",
+        "schema": "https://raw.githubusercontent.com/GeoLabs/ogcapi-processes/rel-1.0/core/openapi/responses/ProcessList.yaml",
+        "method_1": "post",
+        "ecode_1": "500",
+        "code_1": "201",
+        "title_1": "deploy a new processes",
+        "abstract_1": "Deploy a new processes",
+        "abstract_file_1": "/var/www/deploy.md",
+        "tags_1": "List - deploy - get detailed information about processes",
+        "operationId_1": "post_processes",
+        "parameters_1": "/components/parameters/wParam",
+        "schema_1": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/responses/processes-dru/rDeployProcess.yaml",
+        "requestBody_length_1": "2",
+        "requestBody_1_1": "requestBodyPkg",
+        "examples_1_1": "app-package.json",
+        "examples_summary_1_1": "Deploy water-bodies process using OGC Application Package encoding",
+        "requestBody_1": "requestBodyCwl",
+        "examples_ref_1": "https://raw.githubusercontent.com/EOEPCA/app-snuggs/main/app-package.cwl",
+        "examples_1": "app-package.cwl",
+        "examples_summary_1": "Deploy water-bodies process using the CWL Application Package encoding"
+    },
+    "/processes.html": {
+        "rel": "alternate",
+        "type": "text/html"
+    },
+    "processes/{processID}": {
+        "prel": "http://www.opengis.net/def/rel/iana/1.0/describedby",
+        "rel": "self",
+        "length": "3",
+        "method": "get",
+        "ecode": "404",
+        "title": "retrieve a process description",
+        "abstract": "A process description.",
+        "tags": "Other endpoints",
+        "aoperationId": "get_process__processID__",
+        "schema": "https://raw.githubusercontent.com/GeoLabs/ogcapi-processes/rel-1.0/core/openapi/responses/swagger/ProcessDescription.yaml",
+        "parameters": "/components/parameters/processID",
+        "method_1": "delete",
+        "ecode_1": "404",
+        "code_1": "204",
+        "title_1": "undeploy a mutable process",
+        "abstract_1": "Undeploy a mutable process.",
+        "tags_1": "Processes management",
+        "aoperationId_1": "delete_process__processID__",
+        "parameters_1": "/components/parameters/processID",
+        "method_2": "put",
+        "ecode_2": "404",
+        "code_2": "204",
+        "aoperationId_2": "put_process__processID__",
+        "title_2": "Update a mutable process",
+        "requestBody_length_2": "2",
+        "requestBody_2": "requestBodyPkg",
+        "requestBody_2_1": "requestBodyCwl",
+        "abstract_2": "Update a mutable process.",
+        "tags_2": "Processes management",
+        "parameters_2": "/components/parameters/processID",
+        "examples_2": "app-package.json",
+        "examples_summary_2": "Update water-bodies process",
+        "examples_ref_2_1": "https://raw.githubusercontent.com/EOEPCA/app-snuggs/main/app-package.cwl",
+        "examples_2_1": "app-package.cwl",
+        "examples_summary_2_1": "Update test water-bodies process"
+    },
+    "processes/water-bodies": {
+        "prel": "http://www.opengis.net/def/rel/iana/1.0/describedby",
+        "pname": "water-bodies",
+        "length": "1",
+        "method": "get",
+        "ecode": "404",
+        "title": "Retrieve the water-bodies process description",
+        "abstract": "The water-bodies process description.",
+        "abstract_file": "/var/www/processes-description.md",
+        "tags": "List - deploy - get detailed information about processes",
+        "schema": "https://raw.githubusercontent.com/GeoLabs/ogcapi-processes/rel-1.0/core/openapi/responses/swagger/ProcessDescription.yaml",
+        "aparameters": "/components/parameters/processID"
+    },
+    "processes/{processID}/execution": {
+        "rel": "http://www.opengis.net/def/rel/ogc/1.0/execute",
+        "length": "1",
+        "ecode": "400,404,500",
+        "method": "post",
+        "title": "execute a job",
+        "abstract": "An execute endpoint.",
+        "tags": "Other endpoints",
+        "operationId": "processes__processID__execution",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/ExecuteSync.yaml",
+        "parameters": "/components/parameters/processID,/components/parameters/oas-header1",
+        "requestBody": "requestBody",
+        "callbacksReference": "callbacks"
+    },
+    "processes/water-bodies/execution": {
+        "length": "1",
+        "method": "post",
+        "ecode": "400,404,500",
+        "pname": "water-bodies",
+        "title": "execute water-bodies",
+        "abstract": "An execute endpoint.",
+        "abstract_file": "/var/www/execute.md",
+        "tags": "Execute process - monitor job - access the result",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/ExecuteSync.yaml",
+        "parameters": "/components/parameters/oas-header3",
+        "callbacksReference": "callbacks",
+        "examples": "job-order1.json",
+        "examples_summary": "Execute water-bodies with the presented stac item"
+    },
+    "/jobs": {
+        "rel": "http://www.opengis.net/def/rel/ogc/1.0/job-list",
+        "type": "application/json",
+        "title": "Job Management"
+    },
+    "jobs": {
+        "length": "1",
+        "method": "get",
+        "ecode": "500",
+        "title": "retrieve a list of jobs run",
+        "abstract": "A list of jobs run.",
+        "tags": "Jobs management",
+        "operationId": "get_jobs",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/JobList.yaml",
+        "parameters": "/components/parameters/limitParam,/components/parameters/skipParam,/components/parameters/processIdParam,/components/parameters/statusParam,/components/parameters/minDurationParam,/components/parameters/maxDurationParam,/components/parameters/typeParam,/components/parameters/datetimeParam"
+    },
+    "requestBody": {
+        "abstract": "Mandatory execute request in JSON format",
+        "type": "application/json",
+        "schema": "https://raw.githubusercontent.com/GeoLabs/ogcapi-processes/rel-1.0/core/openapi/schemas/execute.yaml"
+    },
+    "requestBodyPkg": {
+        "abstract": "Mandatory OGC Application Package in JSON format",
+        "type": "application/ogcapppkg+json",
+        "schema": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/schemas/processes-dru/ogcapppkg.yaml"
+    },
+    "requestBodyCwl": {
+        "abstract": "Mandatory OGC Application Package in CWL format",
+        "type": "application/cwl+yaml",
+        "schema": "https://raw.githubusercontent.com/common-workflow-language/schema_salad/main/schema_salad/metaschema/metaschema.yml"
+    },
+    "/jobs.html": {
+        "rel": "alternate",
+        "type": "text/html"
+    },
+    "/jobs/{jobID}": {
+        "rel": "canonical",
+        "type": "application/json",
+        "title": "Status"
+    },
+    "jobs/{jobID}": {
+        "length": "2",
+        "method": "get",
+        "operationId": "get_jobs__jobID_",
+        "ecode": "404,500",
+        "title": "The status of a job.",
+        "abstract": "The status of a job.",
+        "abstract_file": "/var/www/job-status.md",
+        "tags": "Execute process - monitor job - access the result",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/Status.yaml",
+        "parameters": "/components/parameters/jobID",
+        "method_1": "delete",
+        "ecode_1": "404,500",
+        "title_1": "Delete a job",
+        "operationId_1": "delete_jobs__jobID__",
+        "abstract_1": "Cancel the job execution.",
+        "tags_1": "Jobs management",
+        "schema_1": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/Status.yaml",
+        "parameters_1": "/components/parameters/jobID"
+    },
+    "/jobs/{jobID}/results": {
+        "rel": "http://www.opengis.net/def/rel/ogc/1.0/results",
+        "type": "application/json",
+        "title": "Get Result"
+    },
+    "jobs/{jobID}/results": {
+        "method": "get",
+        "operationId": "get_jobs__jobID__results",
+        "ecode": "404,500",
+        "title": "The result of a job execution.",
+        "abstract": "The result of a job execution.",
+        "abstract_file": "/var/www/job-results.md",
+        "tags": "Execute process - monitor job - access the result",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/Results.yaml",
+        "parameters": "/components/parameters/jobID",
+        "ep": ",/components/parameters/oas-header2"
+    },
+    "{processID}": {
+        "type": "string",
+        "title": "The id of a process",
+        "abstract": "The id of a process",
+        "in": "path",
+        "required": "true",
+        "example": "water-bodies"
+    },
+    "{jobID}": {
+        "type": "string",
+        "title": "The id of a job",
+        "abstract": "The id of a job",
+        "in": "path",
+        "required": "true"
+    },
+    "{resultID}": {
+        "type": "string",
+        "title": "The id of an output",
+        "abstract": "The id of an output",
+        "in": "path",
+        "required": "true"
+    },
+    "statusParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/parameters/status.yaml"
+    },
+    "processIdParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/parameters/processIdQueryParam.yaml"
+    },
+    "minDurationParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/parameters/minDuration.yaml"
+    },
+    "maxDurationParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/parameters/maxDuration.yaml"
+    },
+    "typeParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/parameters/type.yaml"
+    },
+    "datetimeParam": {
+        "schema": "https://schemas.opengis.net/ogcapi/features/part1/1.0/openapi/parameters/datetime.yaml"
+    },
+    "{f}": {
+        "default": "json",
+        "enum": "json",
+        "title": "The optional f parameter",
+        "abstract": "The optional f parameter indicates the output format which the server shall provide as part of the response document.  The default format is JSON.",
+        "in": "query",
+        "required": "false"
+    },
+    "conformsTo": {
+        "rootUrl": "http://www.opengis.net/spec/ogcapi-processes-1/1.0/conf/",
+        "extentionUrl": "http://www.opengis.net/spec/ogcapi-processes-2/1.0/conf/",
+        "extentionUrl_1": "http://www.opengis.net/spec/ogcapi-common-1/1.0/conf/",
+        "link": "core",
+        "link_1": "oas30",
+        "link_2": "json",
+        "link_3": "job-list",
+        "link_4": "dismiss",
+        "link_5": "callback",
+        "link_6": "ogc-process-description",
+        "link_7": "deploy-replace-undeploy",
+        "extention_7": "true",
+        "extid_7": "0",
+        "link_8": "ogcapppkg",
+        "extention_8": "true",
+        "extid_8": "0",
+        "link_9": "cwl",
+        "extention_9": "true",
+        "extid_9": "0",
+        "link_10": "core",
+        "extention_10": "true",
+        "extid_10": "1",
+        "link_11": "landing-page",
+        "extention_11": "true",
+        "extid_11": "1",
+        "link_12": "oas30",
+        "extention_12": "true",
+        "extid_12": "1",
+        "link_13": "json",
+        "extention_13": "true",
+        "extid_13": "1",
+        "length": "14"
+    },
+    "exception": {
+        "abstract": "Exception",
+        "type": "application/json",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/responses/NotFound.yaml",
+        "default_schema": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/responses/common-core/rServerError.yaml"
+    },
+    "responses": {
+        "length": "7",
+        "code": "404",
+        "schema": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/responses/common-core/rNotFound.yaml",
+        "type": "application/json",
+        "title": "NotFound",
+        "code_1": "500",
+        "schema_1": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/responses/common-core/rServerError.yaml",
+        "type_1": "application/json",
+        "title_1": "ServerError",
+        "code_2": "400",
+        "schema_2": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/openapi/responses/common-core/rInvalidParameter.yaml",
+        "type_2": "appliction/json",
+        "title_2": "InvalidParameter",
+        "code_3": "405",
+        "schema_3": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/core/openapi/responses/NotAllowed.yaml",
+        "type_3": "appliction/json",
+        "title_3": "NotAllowed",
+        "code_4": "406",
+        "schema_4": "https://raw.githubusercontent.com/opengeospatial/ogcapi-processes/master/core/openapi/responses/NotSupported.yaml",
+        "type_4": "appliction/json",
+        "title_4": "NotSupported",
+        "code_5": "401",
+        "schema_5": "https://raw.githubusercontent.com/ZOO-Project/ZOO-Project/master/thirds/openapi/responses/Unauthorized.yaml",
+        "type_5": "appliction/json",
+        "title_5": "Unauthorized",
+        "code_6": "403",
+        "schema_6": "https://raw.githubusercontent.com/ZOO-Project/ZOO-Project/master/thirds/openapi/responses/Forbidden.yaml",
+        "type_6": "appliction/json",
+        "title_6": "Forbidden"
+    },
+    "callbacks": {
+        "length": "3",
+        "state": "jobSuccess",
+        "uri": "successUri",
+        "schema": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/schemas/results.yaml",
+        "type": "application/json",
+        "title": "Results received successfully",
+        "state_1": "jobInProgress",
+        "uri_1": "inProgressUri",
+        "schema_1": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/schemas/statusInfo.yaml",
+        "type_1": "application/json",
+        "title_1": "Status received successfully",
+        "state_2": "jobFailed",
+        "uri_2": "failedUri",
+        "schema_2": "https://schemas.opengis.net/ogcapi/processes/part1/1.0/openapi/schemas/exception.yaml",
+        "type_2": "application/json",
+        "title_2": "Exception received successfully"
+    },
+    "provider_alt": {
+        "addressDeliveryPoint": "streetAddress",
+        "addressCity": "addressLocality",
+        "addressAdministrativeArea": "addressRegion",
+        "addressPostalCode": "postalCode",
+        "addressCountry": "addressCountry",
+        "addressElectronicMailAddress": "email",
+        "phoneVoice": "telephone",
+        "phoneFacsimile": "faxNumber",
+        "hoursOfService": "hoursAvailable",
+        "contactInstructions": "contactOption"
+    },
+    "filter_in": {
+        "path": "/usr/lib/cgi-bin",
+        "service": "securityIn"
+    },
+    "filter_out": {
+        "path": "/usr/lib/cgi-bin",
+        "service": "securityOut"
+    },
+    "links_title": {
+        "self": "View this document in JSON.",
+        "alternate": "View the alternative version in HTML.",
+        "service-desc": "View the service description.",
+        "service-doc": "View service documentation.",
+        "processes": "View the list of processes the API offers.",
+        "results": "View the results of a process.",
+        "status": "View the current status of a job execution.",
+        "execute": "View the execution endpoint of a process.",
+        "job-list": "View the list of job available on this server.",
+        "conformance": "View the conformance classes that the link's context conforms to."
+    },
+    "lenv": {
+        "ds_nb": "2",
+        "usid": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+        "uusid": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+        "metapath": "",
+        "no-headers": "true",
+        "osid": "1715031517",
+        "sid": "68",
+        "status": "3",
+        "cwd": "/opt/zooservices_user/bob",
+        "message": "Inputs downloaded, nested processes execution finalized",
+        "soap": "false",
+        "secured_url": "false",
+        "can_continue": "true",
+        "oIdentifier": "water-bodies-argo",
+        "Identifier": "water-bodies-argo",
+        "json_user": "{\"exp\": 1715033012, \"iat\": 1714946612, \"jti\": \"9d9f34de-5857-4f21-a405-5fbcbe928c0c\", \"iss\": \"https://keycloak.mkube.dec.earthdaily.com/realms/master\", \"aud\": \"account\", \"sub\": \"c3c33ca9-97f7-459a-ae34-8cd02380218b\", \"typ\": \"Bearer\", \"azp\": \"ws-bob\", \"session_state\": \"2e8bcf7b-e53f-4fbe-a164-f1a8f4f842f1\", \"acr\": \"1\", \"allowed-origins\": [\"*\"], \"realm_access\": {\"roles\": [\"default-roles-master\", \"offline_access\", \"uma_authorization\"]}, \"resource_access\": {\"account\": {\"roles\": [\"manage-account\", \"manage-account-links\", \"view-profile\"]}, \"ws-bob\": {\"roles\": [\"uma_protection\"]}}, \"scope\": \"profile email\", \"sid\": \"2e8bcf7b-e53f-4fbe-a164-f1a8f4f842f1\", \"email_verified\": false, \"preferred_username\": \"bob\"}",
+        "fpm_user": "bob",
+        "fpm_cwd": "/opt/zooservices_user/bob",
+        "filter_in": "true",
+        "request_method": "POST",
+        "execute_mode": "async",
+        "async": "true",
+        "file.sid": "/tmp/zTmp/50525fb8-0b2b-11ef-9d26-0242ac11002f.sid",
+        "file.pid": "/tmp/zTmp/50525fb8-0b2b-11ef-9d26-0242ac11002f.pid",
+        "file.responseInit": "/tmp/zTmp/water-bodies-argo_50525fb8-0b2b-11ef-9d26-0242ac11002f.json",
+        "file.log": "/tmp/zTmp/water-bodies-argo_50525fb8-0b2b-11ef-9d26-0242ac11002f_error.log",
+        "file.responseFinal": "/tmp/zTmp/water-bodies-argo_final_50525fb8-0b2b-11ef-9d26-0242ac11002f.json",
+        "serviceType": "Python",
+        "PercentCompleted": "3"
+    },
+    "zooServicesNamespace": {
+        "namespace": "bob"
+    },
+    "auth_env": {
+        "user": "bob",
+        "cwd": "/opt/zooservices_user/bob",
+        "exp": "1715033012",
+        "iat": "1714946612",
+        "jti": "9d9f34de-5857-4f21-a405-5fbcbe928c0c",
+        "iss": "https://keycloak.mkube.dec.earthdaily.com/realms/master",
+        "aud": "account",
+        "sub": "c3c33ca9-97f7-459a-ae34-8cd02380218b",
+        "typ": "Bearer",
+        "azp": "ws-bob",
+        "session_state": "2e8bcf7b-e53f-4fbe-a164-f1a8f4f842f1",
+        "acr": "1",
+        "allowed-origins": "['*']",
+        "realm_access": "{'roles': ['default-roles-master', 'offline_access', 'uma_authorization']}",
+        "resource_access": "{'account': {'roles': ['manage-account', 'manage-account-links', 'view-profile']}, 'ws-bob': {'roles': ['uma_protection']}}",
+        "scope": "profile email",
+        "sid": "2e8bcf7b-e53f-4fbe-a164-f1a8f4f842f1",
+        "email_verified": "False",
+        "preferred_username": "bob",
+        "jwt": "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJaYnM2bTlXdndRWHZ2akxKTF9BRTlXUERsQVV4TkY4YXBGVFpmU3JRb2FZIn0.eyJleHAiOjE3MTUwMzMwMTIsImlhdCI6MTcxNDk0NjYxMiwianRpIjoiOWQ5ZjM0ZGUtNTg1Ny00ZjIxLWE0MDUtNWZiY2JlOTI4YzBjIiwiaXNzIjoiaHR0cHM6Ly9rZXljbG9hay5ta3ViZS5kZWMuZWFydGhkYWlseS5jb20vcmVhbG1zL21hc3RlciIsImF1ZCI6ImFjY291bnQiLCJzdWIiOiJjM2MzM2NhOS05N2Y3LTQ1OWEtYWUzNC04Y2QwMjM4MDIxOGIiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJ3cy1ib2IiLCJzZXNzaW9uX3N0YXRlIjoiMmU4YmNmN2ItZTUzZi00ZmJlLWExNjQtZjFhOGY0Zjg0MmYxIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJkZWZhdWx0LXJvbGVzLW1hc3RlciIsIm9mZmxpbmVfYWNjZXNzIiwidW1hX2F1dGhvcml6YXRpb24iXX0sInJlc291cmNlX2FjY2VzcyI6eyJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX0sIndzLWJvYiI6eyJyb2xlcyI6WyJ1bWFfcHJvdGVjdGlvbiJdfX0sInNjb3BlIjoicHJvZmlsZSBlbWFpbCIsInNpZCI6IjJlOGJjZjdiLWU1M2YtNGZiZS1hMTY0LWYxYThmNGY4NDJmMSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoiYm9iIn0.Z0MVHbjK3FcNUc0Q0WXIPbm866l-WEGUgrqWEkkiGgHD0V8WSVWHHp7ExH5wChqZbIPG6FwO98sogPyQ5ip32RhaOrlkHDMWgzdS3sxBxTDAWtFljDo8kS-eFGZfr9kFGRyEw-REWNfBWMzSOfWQ77WwExn2IXPs86nDffmOs1xqGmByWVAJSUY3GK8ydGUnuXWN-NH9gSS3-3c_bb7crzDvTGo1TDfYzv7g4vV67YE1hQPvwRAlEid2M-vlnSGF6o6L5Cgu2BD1oxX-e19htU-x1gRHvUsjR8LY6Do05h7cHAyL_1fBqofdgVXxI27LnAwIhvet3eBW74LbG01Z_w"
+    },
+    "request": {
+        "jrequest": "{\n    \"inputs\": {\n        \"aoi\": \"-121.399,39.834,-120.74,40.472\",\n        \"epsg\": \"EPSG:4326\",\n        \"stac_item\": \"https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A\",\n        \"bands\": [\"green\", \"nir\"]\n    }\n}",
+        "Identifier": "water-bodies-argo",
+        "response": "document",
+        "mode": "async",
+        "metapath": ""
+    },
+    "renv": {
+        "SHELL": "/bin/bash",
+        "ZOO_PROJECT_DRU_POSTGRESQL_SERVICE_PORT": "5432",
+        "KUBERNETES_SERVICE_PORT_HTTPS": "443",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_3000_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_KUBEPROXY_SERVICE_PORT": "8001",
+        "WRAPPER_MAIN": "/assets/main.yaml",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_15672_TCP": "tcp://10.103.91.148:15672",
+        "KUBERNETES_SERVICE_PORT": "443",
+        "ZOO_PROJECT_DRU_SERVICE_SERVICE_PORT": "80",
+        "ZOO_PROJECT_DRU_KUBEPROXY_PORT_8001_TCP": "tcp://10.108.156.178:8001",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_15672_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_PROTECTION_SERVICE_PORT": "3000",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_5672_TCP_PORT": "5672",
+        "HOSTNAME": "zoo-project-dru-zoofpm-ff66fc88c-n6nf2",
+        "ZOO_PROJECT_DRU_SERVICE_PORT_80_TCP": "tcp://10.102.114.249:80",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_4000_TCP_PROTO": "tcp",
+        "PGPORT": "5432",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_4369_TCP_PORT": "4369",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_15672_TCP_ADDR": "10.103.91.148",
+        "PGPASSWORD": "zoo",
+        "ZOO_PROJECT_DRU_PROTECTION_SERVICE_PORT_ADMIN": "4000",
+        "ZOO_PROJECT_DRU_SERVICE_PORT_80_TCP_PORT": "80",
+        "ZOO_RABBITMQ_HOST": "zoo-project-dru-rabbitmq",
+        "STAGEIN_AWS_SERVICEURL": "http://data.cloudferro.com",
+        "DEFAULT_MAX_RAM": "1024",
+        "WRAPPER_RULES": "/assets/rules.yaml",
+        "ZOO_PROJECT_DRU_KUBEPROXY_SERVICE_PORT_HTTP_KUBEPROXY": "8001",
+        "ZOO_PROJECT_DRU_POSTGRESQL_PORT": "tcp://10.99.95.70:5432",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_5672_TCP": "tcp://10.103.91.148:5672",
+        "CALRISSIAN_IMAGE": "terradue/calrissian:0.12.0",
+        "PWD": "/usr/lib/cgi-bin",
+        "STAGEIN_AWS_ACCESS_KEY_ID": "test",
+        "LOGNAME": "www-data",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_5672_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_5672_TCP_ADDR": "10.103.91.148",
+        "ZOO_PROJECT_DRU_POSTGRESQL_PORT_5432_TCP_PORT": "5432",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_15672_TCP_PORT": "15672",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT": "tcp://10.110.28.80:3000",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_PORT": "5672",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_4000_TCP_PORT": "4000",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_3000_TCP_PORT": "3000",
+        "_": "./zoo_loader_fpm",
+        "DEFAULT_VOLUME_SIZE": "10190",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_PORT_EPMD": "4369",
+        "ZOO_PROJECT_DRU_KUBEPROXY_PORT_8001_TCP_PROTO": "tcp",
+        "STAGEOUT_OUTPUT": "eoepca",
+        "ZOO_PROJECT_DRU_KUBEPROXY_PORT": "tcp://10.108.156.178:8001",
+        "HOME": "/var/www",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_25672_TCP_ADDR": "10.103.91.148",
+        "KUBERNETES_PORT_443_TCP": "tcp://10.96.0.1:443",
+        "ZOO_PROJECT_DRU_KUBEPROXY_PORT_8001_TCP_PORT": "8001",
+        "STAGEOUT_AWS_ACCESS_KEY_ID": "eoepca",
+        "ZOO_PROJECT_DRU_POSTGRESQL_PORT_5432_TCP_ADDR": "10.99.95.70",
+        "STAGEOUT_AWS_REGION": "RegionOne",
+        "ZOO_PROJECT_DRU_SERVICE_PORT_80_TCP_PROTO": "tcp",
+        "PGUSER": "zoo",
+        "ZOO_PROJECT_DRU_SERVICE_SERVICE_PORT_HTTP": "80",
+        "DEFAULT_MAX_CORES": "2",
+        "ZOO_PROJECT_DRU_PROTECTION_SERVICE_HOST": "10.110.28.80",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_4369_TCP_ADDR": "10.103.91.148",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_PORT_DIST": "25672",
+        "ZOO_PROJECT_DRU_SERVICE_PORT": "tcp://10.102.114.249:80",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_4000_TCP": "tcp://10.110.28.80:4000",
+        "STAGEOUT_AWS_SECRET_ACCESS_KEY": "changeme",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_4000_TCP_ADDR": "10.110.28.80",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_25672_TCP": "tcp://10.103.91.148:25672",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT": "tcp://10.103.91.148:5672",
+        "USER": "www-data",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_HOST": "10.103.91.148",
+        "ZOO_PROJECT_DRU_SERVICE_PORT_80_TCP_ADDR": "10.102.114.249",
+        "ZOO_PROJECT_DRU_POSTGRESQL_PORT_5432_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_PORT_AMQP": "5672",
+        "STAGEIN_AWS_REGION": "RegionOne",
+        "SHLVL": "2",
+        "STAGEOUT_AWS_SERVICEURL": "https://minio.mkube.dec.earthdaily.com",
+        "HTTP_PROXY": "http://zoo-project-dru-kubeproxy.zoo.svc.cluster.local:8001",
+        "KUBERNETES_PORT_443_TCP_PROTO": "tcp",
+        "PGDATABASE": "zoo",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_25672_TCP_PORT": "25672",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_25672_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_POSTGRESQL_SERVICE_PORT_TCP_POSTGRESQL": "5432",
+        "KUBERNETES_PORT_443_TCP_ADDR": "10.96.0.1",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_3000_TCP": "tcp://10.110.28.80:3000",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_4369_TCP_PROTO": "tcp",
+        "ZOO_PROJECT_DRU_RABBITMQ_SERVICE_PORT_HTTP_STATS": "15672",
+        "PGHOST": "zoo-project-dru-postgresql-hl",
+        "ZOO_PROJECT_DRU_RABBITMQ_PORT_4369_TCP": "tcp://10.103.91.148:4369",
+        "WRAPPER_STAGE_OUT": "/assets/stageout.yaml",
+        "KUBERNETES_SERVICE_HOST": "10.96.0.1",
+        "ZOO_PROJECT_DRU_KUBEPROXY_PORT_8001_TCP_ADDR": "10.108.156.178",
+        "ZOO_PROJECT_DRU_PROTECTION_SERVICE_PORT_PROXY": "3000",
+        "KUBERNETES_PORT": "tcp://10.96.0.1:443",
+        "KUBERNETES_PORT_443_TCP_PORT": "443",
+        "ZOO_PROJECT_DRU_POSTGRESQL_SERVICE_HOST": "10.99.95.70",
+        "ZOO_PROJECT_DRU_POSTGRESQL_PORT_5432_TCP": "tcp://10.99.95.70:5432",
+        "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin",
+        "ZOO_PROJECT_DRU_SERVICE_SERVICE_HOST": "10.102.114.249",
+        "ZOO_PROJECT_DRU_PROTECTION_PORT_3000_TCP_ADDR": "10.110.28.80",
+        "WRAPPER_STAGE_IN": "/assets/stagein.yaml",
+        "MAIL": "/var/mail/www-data",
+        "STORAGE_CLASS": "standard",
+        "DEBIAN_FRONTEND": "noninteractive",
+        "ZOO_PROJECT_DRU_KUBEPROXY_SERVICE_HOST": "10.108.156.178",
+        "STAGEIN_AWS_SECRET_ACCESS_KEY": "test",
+        "OLDPWD": "/opt/ZOO-Project",
+        "PYTHONPATH": "/usr/miniconda3/envs/ades-dev/lib/python3.8/site-packages",
+        "CONTEXT_DOCUMENT_ROOT": "/usr/lib/cgi-bin/",
+        "SERVICES_NAMESPACE": "bob",
+        "jrequest": "{\n    \"inputs\": {\n        \"aoi\": \"-121.399,39.834,-120.74,40.472\",\n        \"epsg\": \"EPSG:4326\",\n        \"stac_item\": \"https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A\",\n        \"bands\": [\"green\", \"nir\"]\n    }\n}"
+    },
+    "additional_parameters": {
+        "APP": "zoo-project-dru",
+        "STAGEIN_AWS_REGION": "RegionOne",
+        "STAGEIN_AWS_ACCESS_KEY_ID": "minio-admin",
+        "STAGEIN_AWS_SECRET_ACCESS_KEY": "minio-secret-password",
+        "STAGEIN_AWS_SERVICEURL": "http://s3-service.zoo.svc.cluster.local:9000",
+        "STAGEOUT_AWS_REGION": "RegionOne",
+        "STAGEOUT_AWS_ACCESS_KEY_ID": "minio-admin",
+        "STAGEOUT_AWS_SECRET_ACCESS_KEY": "minio-secret-password",
+        "STAGEOUT_AWS_SERVICEURL": "http://s3-service.zoo.svc.cluster.local:9000",
+        "STAGEOUT_OUTPUT": "s3://processingresults"
+    },
+    "pod_env_vars": {
+        "A": "1",
+        "B": "2"
+    },
+    "sqlenv": {
+        "lastQuery": "select id,identifier,title,abstract,version,service_type,service_provider,conf_id,mutable,user_id from ows_process WHERE identifier='water-bodies-argo' AND (user_id=0 or user_id=(SELECT id FROM public.users WHERE name='bob'))",
+        "length": "3",
+        "isArray": "true",
+        "lastResult": "Succeeded",
+        "lastQuery_1": "select id, identifier,title,abstract,min_occurs,max_occurs from CollectionDB.ows_Input where id in (SELECT input_id from CollectionDB.ProcessInputAssignment where process_id=869) order by id",
+        "lastResult_1": "Succeeded",
+        "lastQuery_2": "select id, identifier,title,abstract from CollectionDB.ows_Output where id in (SELECT output_id from CollectionDB.ProcessOutputAssignment where process_id=869) order by id",
+        "lastResult_2": "Succeeded"
+    }
+}
+2024-05-05 22:03:36.204 | INFO     | water-bodies-argo.service:water_bodies_argo:1024 - inputs = {
+    "aoi": {
+        "value": "-121.399,39.834,-120.74,40.472",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "1",
+        "dataType": "string"
+    },
+    "epsg": {
+        "value": "EPSG:4326",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "1",
+        "dataType": "string"
+    },
+    "stac_item": {
+        "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "999",
+        "dataType": "string"
+    },
+    "bands": {
+        "value": [
+            "green",
+            "nir"
+        ],
+        "cache_file": [
+            null,
+            null
+        ],
+        "length": "2",
+        "isArray": "true",
+        "value_1": "nir",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "999"
+    }
+}
+2024-05-05 22:03:36.204 | INFO     | water-bodies-argo.service:water_bodies_argo:1025 - outputs = {
+    "stac": {
+        "transmissionMode": "value",
+        "mimeType": "application/json",
+        "ecoding": "utf-8",
+        "useMapserver": "false",
+        "inRequest": "true"
+    }
+}
+2024-05-05 22:03:36.204 | INFO     | water-bodies-argo.service:load_workflow_template_from_file:987 - open file: app-package.cwl
+2024-05-05 22:03:36.234 | INFO     | water-bodies-argo.service:_parse_input_parameters:930 - json_request from request: {'inputs': {'aoi': '-121.399,39.834,-120.74,40.472', 'epsg': 'EPSG:4326', 'stac_item': 'https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A', 'bands': ['green', 'nir']}}
+2024-05-05 22:03:36.234 | INFO     | water-bodies-argo.service:_parse_input_parameters:934 - key = aoi, value = -121.399,39.834,-120.74,40.472
+2024-05-05 22:03:36.234 | INFO     | water-bodies-argo.service:_parse_input_parameters:934 - key = epsg, value = EPSG:4326
+2024-05-05 22:03:36.235 | INFO     | water-bodies-argo.service:_parse_input_parameters:934 - key = stac_item, value = https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A
+2024-05-05 22:03:36.235 | INFO     | water-bodies-argo.service:_parse_input_parameters:934 - key = bands, value = ['green', 'nir']
+2024-05-05 22:03:36.235 | INFO     | water-bodies-argo.service:water_bodies_argo:1030 - 
+        ************** Job Information **********************
+        tmp_path = /tmp/zTmp
+        process_identifier = water-bodies-argo
+        process_usid = 50525fb8-0b2b-11ef-9d26-0242ac11002f
+        workspace = ws-bob
+        working_dir = /tmp/zTmp/water-bodies-argo-50525fb8-0b2b-11ef-9d26-0242ac11002f
+        input_parameters = [
+  {
+    "name": "aoi",
+    "value": "-121.399,39.834,-120.74,40.472"
+  },
+  {
+    "name": "epsg",
+    "value": "EPSG:4326"
+  },
+  {
+    "name": "stac_item",
+    "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+  },
+  {
+    "name": "bands",
+    "value": "[\"green\", \"nir\"]"
+  }
+]
+        *****************************************************
+        
+2024-05-05 22:03:36.235 | INFO     | water-bodies-argo.service:water_bodies_argo:1034 - Starting execute runner
+2024-05-05 22:03:36.235 | INFO     | water-bodies-argo.service:water_bodies_argo:1038 - preparing job on workspace ws-bob with process (workflow) 50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.236 | INFO     | water-bodies-argo.service:get_credentials:959 - Getting credentials
+2024-05-05 22:03:36.433 | INFO     | water-bodies-argo.service:water_bodies_argo:1057 - Running workflow
+2024-05-05 22:03:36.435 | INFO     | water-bodies-argo.service:__init__:92 - Loading kube config
+2024-05-05 22:03:36.436 | INFO     | water-bodies-argo.service:__init__:97 - Creating a new K8s client
+2024-05-05 22:03:36.437 | INFO     | water-bodies-argo.service:run_workflow_from_file:371 - Creating namespace, roles, and storage secrets
+2024-05-05 22:03:36.437 | INFO     | water-bodies-argo.service:_create_job_namespace:108 - Creating namespace: ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.486 | INFO     | water-bodies-argo.service:_create_job_secret:116 - Creating storage secrets for namespace: ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.531 | INFO     | water-bodies-argo.service:_create_artifact_repository_configmap:129 - Creating artifact repository configmap for namespace: ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.544 | INFO     | water-bodies-argo.service:_create_job_role:171 - Creating role for namespace: ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.565 | INFO     | water-bodies-argo.service:_create_job_role_binding:200 - Creating role binding for namespace: ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.574 | INFO     | water-bodies-argo.service:_save_template_job_namespace:220 - template_manifest = {
+  "apiVersion": "argoproj.io/v1alpha1",
+  "kind": "WorkflowTemplate",
+  "metadata": {
+    "description": "This workflow template detects water bodies in a given area of interest.",
+    "name": "detect-water-body",
+    "title": "Water Bodies Detection",
+    "version": "1.0.1"
+  },
+  "spec": {
+    "artifactGC": {
+      "strategy": "OnWorkflowCompletion"
+    },
+    "artifactRepositoryRef": {
+      "configMap": "artifact-repository"
+    },
+    "entrypoint": "detect-water-body",
+    "templates": [
+      {
+        "name": "detect-water-body",
+        "steps": [
+          [
+            {
+              "arguments": {
+                "parameters": [
+                  {
+                    "name": "aoi",
+                    "value": "{{workflow.parameters.aoi}}"
+                  },
+                  {
+                    "name": "epsg",
+                    "value": "{{workflow.parameters.epsg}}"
+                  },
+                  {
+                    "name": "stac_item",
+                    "value": "{{workflow.parameters.stac_item}}"
+                  },
+                  {
+                    "name": "bands",
+                    "value": "{{item}}"
+                  }
+                ]
+              },
+              "name": "node-crop",
+              "template": "crop",
+              "withParam": "{{workflow.parameters.bands}}"
+            }
+          ],
+          [
+            {
+              "name": "node-normalized-difference",
+              "template": "normalized-difference"
+            }
+          ],
+          [
+            {
+              "name": "node-otsu",
+              "template": "otsu"
+            }
+          ],
+          [
+            {
+              "arguments": {
+                "parameters": [
+                  {
+                    "name": "stac_item",
+                    "value": "{{workflow.parameters.stac_item}}"
+                  }
+                ]
+              },
+              "name": "node-stac",
+              "template": "stac"
+            }
+          ]
+        ]
+      },
+      {
+        "container": {
+          "command": [
+            "python",
+            "-m",
+            "app",
+            "--aoi",
+            "{{inputs.parameters.aoi}}",
+            "--epsg",
+            "{{inputs.parameters.epsg}}",
+            "--input-item",
+            "{{inputs.parameters.stac_item}}",
+            "--band",
+            "{{inputs.parameters.bands}}"
+          ],
+          "env": [
+            {
+              "name": "PATH",
+              "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            },
+            {
+              "name": "PYTHONPATH",
+              "value": "/app"
+            }
+          ],
+          "image": "ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0"
+        },
+        "inputs": {
+          "parameters": [
+            {
+              "name": "aoi"
+            },
+            {
+              "name": "epsg"
+            },
+            {
+              "name": "stac_item"
+            },
+            {
+              "name": "bands"
+            }
+          ]
+        },
+        "name": "crop",
+        "outputs": {
+          "artifacts": [
+            {
+              "archive": {
+                "none": {}
+              },
+              "name": "cropped-band",
+              "path": "/crop_{{inputs.parameters.bands}}.tif",
+              "s3": {
+                "key": "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "container": {
+          "command": [
+            "python",
+            "-m",
+            "app"
+          ],
+          "env": [
+            {
+              "name": "PATH",
+              "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            },
+            {
+              "name": "PYTHONPATH",
+              "value": "/app"
+            }
+          ],
+          "image": "harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2"
+        },
+        "inputs": {
+          "artifacts": [
+            {
+              "name": "rasters",
+              "path": "/app/rasters",
+              "s3": {
+                "key": "{{workflow.name}}/rasters"
+              }
+            }
+          ]
+        },
+        "name": "normalized-difference",
+        "outputs": {
+          "artifacts": [
+            {
+              "archive": {
+                "none": {}
+              },
+              "name": "ndwi",
+              "path": "/norm_diff.tif",
+              "s3": {
+                "key": "{{workflow.name}}/rasters/norm_diff.tif"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "container": {
+          "command": [
+            "python",
+            "-m",
+            "app"
+          ],
+          "env": [
+            {
+              "name": "PATH",
+              "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            },
+            {
+              "name": "PYTHONPATH",
+              "value": "/app"
+            }
+          ],
+          "image": "harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3"
+        },
+        "inputs": {
+          "artifacts": [
+            {
+              "name": "rasters",
+              "path": "/app/rasters",
+              "s3": {
+                "key": "{{workflow.name}}/rasters"
+              }
+            }
+          ]
+        },
+        "name": "otsu",
+        "outputs": {
+          "artifacts": [
+            {
+              "archive": {
+                "none": {}
+              },
+              "name": "otsu",
+              "path": "/otsu.tif",
+              "s3": {
+                "key": "{{workflow.name}}/rasters/otsu.tif"
+              }
+            }
+          ]
+        }
+      },
+      {
+        "container": {
+          "command": [
+            "python",
+            "-m",
+            "app",
+            "--input-item",
+            "{{inputs.parameters.stac_item}}",
+            "--workflow-id",
+            "{{workflow.name}}"
+          ],
+          "env": [
+            {
+              "name": "PATH",
+              "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+            },
+            {
+              "name": "PYTHONPATH",
+              "value": "/app"
+            }
+          ],
+          "image": "harbor.mkube.dec.earthdaily.com/test/stac:0.0.6"
+        },
+        "inputs": {
+          "artifacts": [
+            {
+              "name": "rasters",
+              "path": "/out/otsu.tif",
+              "s3": {
+                "key": "{{workflow.name}}/rasters/otsu.tif"
+              }
+            }
+          ],
+          "parameters": [
+            {
+              "name": "stac_item"
+            }
+          ]
+        },
+        "name": "stac",
+        "outputs": {
+          "artifacts": [
+            {
+              "archive": {
+                "none": {}
+              },
+              "artifactGC": {
+                "strategy": "Never"
+              },
+              "name": "stac",
+              "path": "/final/",
+              "s3": {
+                "key": "processing-results/{{workflow.name}}"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+2024-05-05 22:03:36.574 | INFO     | water-bodies-argo.service:save_workflow_template:253 - Creating workflow template detect-water-body on namespace ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.594 | INFO     | water-bodies-argo.service:save_workflow_template:264 - Workflow template detect-water-body created successfully
+2024-05-05 22:03:36.600 | INFO     | water-bodies-argo.service:monitor_workflow:303 - Monitoring workflow 50525fb8-0b2b-11ef-9d26-0242ac11002f
+2024-05-05 22:03:36.604 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: ADDED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: None, Progress: None
+2024-05-05 22:03:36.835 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 0/2
+2024-05-05 22:03:46.890 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 0/2
+2024-05-05 22:04:38.760 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 2/3
+2024-05-05 22:04:48.394 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 2/3
+2024-05-05 22:05:32.957 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 2/3
+2024-05-05 22:05:44.099 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 3/4
+2024-05-05 22:05:54.111 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 3/4
+2024-05-05 22:06:04.360 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 3/4
+2024-05-05 22:06:14.449 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Running, Progress: 4/5
+2024-05-05 22:06:24.471 | INFO     | water-bodies-argo.service:monitor_workflow:327 - Workflow 50525fb8-0b2b-11ef-9d26-0242ac11002f has reached a terminal state: Succeeded
+2024-05-05 22:06:24.481 | INFO     | water-bodies-argo.service:monitor_workflow:332 - {
+  "type": "MODIFIED",
+  "object": {
+    "apiVersion": "argoproj.io/v1alpha1",
+    "kind": "Workflow",
+    "metadata": {
+      "annotations": {
+        "workflows.argoproj.io/pod-name-format": "v2"
+      },
+      "creationTimestamp": "2024-05-05T22:03:36Z",
+      "finalizers": [
+        "workflows.argoproj.io/artifact-gc"
+      ],
+      "generation": 11,
+      "labels": {
+        "workflows.argoproj.io/completed": "true",
+        "workflows.argoproj.io/phase": "Succeeded"
+      },
+      "managedFields": [
+        {
+          "apiVersion": "argoproj.io/v1alpha1",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                ".": {},
+                "f:workflows.argoproj.io/pod-name-format": {}
+              },
+              "f:finalizers": {
+                ".": {},
+                "v:\"workflows.argoproj.io/artifact-gc\"": {}
+              },
+              "f:labels": {
+                ".": {},
+                "f:workflows.argoproj.io/completed": {},
+                "f:workflows.argoproj.io/phase": {}
+              }
+            },
+            "f:spec": {},
+            "f:status": {}
+          },
+          "manager": "workflow-controller",
+          "operation": "Update",
+          "time": "2024-05-05T22:03:36Z"
+        }
+      ],
+      "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+      "namespace": "ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f",
+      "resourceVersion": "12022431",
+      "uid": "cf61b151-ef09-4fa2-9889-e72ee6cbd15b"
+    },
+    "spec": {
+      "arguments": {
+        "parameters": [
+          {
+            "name": "aoi",
+            "value": "-121.399,39.834,-120.74,40.472"
+          },
+          {
+            "name": "epsg",
+            "value": "EPSG:4326"
+          },
+          {
+            "name": "stac_item",
+            "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+          },
+          {
+            "name": "bands",
+            "value": "[\"green\", \"nir\"]"
+          }
+        ]
+      },
+      "workflowTemplateRef": {
+        "name": "detect-water-body"
+      }
+    },
+    "status": {
+      "artifactGCStatus": {},
+      "artifactRepositoryRef": {
+        "artifactRepository": {
+          "archiveLogs": true,
+          "s3": {
+            "accessKeySecret": {
+              "key": "access-key",
+              "name": "storage-credentials"
+            },
+            "bucket": "ws-bob",
+            "endpoint": "minio.mkube.dec.earthdaily.com",
+            "insecure": false,
+            "secretKeySecret": {
+              "key": "secret-key",
+              "name": "storage-credentials"
+            }
+          }
+        },
+        "configMap": "artifact-repository",
+        "key": "default-v1-s3-artifact-repository",
+        "namespace": "ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f"
+      },
+      "conditions": [
+        {
+          "status": "False",
+          "type": "PodRunning"
+        },
+        {
+          "status": "True",
+          "type": "Completed"
+        }
+      ],
+      "finishedAt": "2024-05-05T22:06:24Z",
+      "nodes": {
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f": {
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782"
+          ],
+          "displayName": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "finishedAt": "2024-05-05T22:06:24Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "outboundNodes": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279"
+          ],
+          "phase": "Succeeded",
+          "progress": "5/5",
+          "resourcesDuration": {
+            "cpu": 30,
+            "memory": 344
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "detect-water-body",
+          "templateScope": "local/",
+          "type": "Steps"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043",
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788"
+          ],
+          "displayName": "[0]",
+          "finishedAt": "2024-05-05T22:04:38Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "5/5",
+          "resourcesDuration": {
+            "cpu": 30,
+            "memory": 344
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "displayName": "node-stac",
+          "finishedAt": "2024-05-05T22:06:21Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/out/otsu.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/otsu.tif"
+                }
+              }
+            ],
+            "parameters": [
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[3].node-stac",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "artifactGC": {
+                  "strategy": "Never"
+                },
+                "name": "stac",
+                "path": "/final",
+                "s3": {
+                  "key": "processing-results/50525fb8-0b2b-11ef-9d26-0242ac11002f"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-stac-2981635279/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 0,
+            "memory": 7
+          },
+          "startedAt": "2024-05-05T22:06:14Z",
+          "templateName": "stac",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429"
+          ],
+          "displayName": "node-otsu",
+          "finishedAt": "2024-05-05T22:06:07Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters"
+                }
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[2].node-otsu",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "otsu",
+                "path": "/otsu.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/otsu.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-otsu-3132412146/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 2,
+            "memory": 33
+          },
+          "startedAt": "2024-05-05T22:05:44Z",
+          "templateName": "otsu",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595"
+          ],
+          "displayName": "node-crop(1:nir)",
+          "finishedAt": "2024-05-05T22:04:36Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi",
+                "value": "-121.399,39.834,-120.74,40.472"
+              },
+              {
+                "name": "epsg",
+                "value": "EPSG:4326"
+              },
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              },
+              {
+                "name": "bands",
+                "value": "nir"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0].node-crop(1:nir)",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_nir.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/crop_nir.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-crop-3572394788/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 107
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "crop",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595"
+          ],
+          "displayName": "node-crop(0:green)",
+          "finishedAt": "2024-05-05T22:04:36Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi",
+                "value": "-121.399,39.834,-120.74,40.472"
+              },
+              {
+                "name": "epsg",
+                "value": "EPSG:4326"
+              },
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              },
+              {
+                "name": "bands",
+                "value": "green"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0].node-crop(0:green)",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_green.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/crop_green.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-crop-3693905043/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 107
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "crop",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048"
+          ],
+          "displayName": "node-normalized-difference",
+          "finishedAt": "2024-05-05T22:05:34Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters"
+                }
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[1].node-normalized-difference",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "ndwi",
+                "path": "/norm_diff.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/norm_diff.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-normalized-difference-3743516721/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 8,
+            "memory": 90
+          },
+          "startedAt": "2024-05-05T22:04:38Z",
+          "templateName": "normalized-difference",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721"
+          ],
+          "displayName": "[1]",
+          "finishedAt": "2024-05-05T22:05:44Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[1]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "3/3",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 130
+          },
+          "startedAt": "2024-05-05T22:04:38Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146"
+          ],
+          "displayName": "[2]",
+          "finishedAt": "2024-05-05T22:06:14Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[2]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "2/2",
+          "resourcesDuration": {
+            "cpu": 2,
+            "memory": 40
+          },
+          "startedAt": "2024-05-05T22:05:44Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279"
+          ],
+          "displayName": "[3]",
+          "finishedAt": "2024-05-05T22:06:24Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[3]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 0,
+            "memory": 7
+          },
+          "startedAt": "2024-05-05T22:06:14Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        }
+      },
+      "phase": "Succeeded",
+      "progress": "5/5",
+      "resourcesDuration": {
+        "cpu": 30,
+        "memory": 344
+      },
+      "startedAt": "2024-05-05T22:03:36Z",
+      "storedTemplates": {
+        "namespaced/detect-water-body/crop": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app",
+              "--aoi",
+              "{{inputs.parameters.aoi}}",
+              "--epsg",
+              "{{inputs.parameters.epsg}}",
+              "--input-item",
+              "{{inputs.parameters.stac_item}}",
+              "--band",
+              "{{inputs.parameters.bands}}"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi"
+              },
+              {
+                "name": "epsg"
+              },
+              {
+                "name": "stac_item"
+              },
+              {
+                "name": "bands"
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "crop",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_{{inputs.parameters.bands}}.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/detect-water-body": {
+          "inputs": {},
+          "metadata": {},
+          "name": "detect-water-body",
+          "outputs": {},
+          "steps": [
+            [
+              {
+                "arguments": {
+                  "parameters": [
+                    {
+                      "name": "aoi",
+                      "value": "{{workflow.parameters.aoi}}"
+                    },
+                    {
+                      "name": "epsg",
+                      "value": "{{workflow.parameters.epsg}}"
+                    },
+                    {
+                      "name": "stac_item",
+                      "value": "{{workflow.parameters.stac_item}}"
+                    },
+                    {
+                      "name": "bands",
+                      "value": "{{item}}"
+                    }
+                  ]
+                },
+                "name": "node-crop",
+                "template": "crop",
+                "withParam": "{{workflow.parameters.bands}}"
+              }
+            ],
+            [
+              {
+                "arguments": {},
+                "name": "node-normalized-difference",
+                "template": "normalized-difference"
+              }
+            ],
+            [
+              {
+                "arguments": {},
+                "name": "node-otsu",
+                "template": "otsu"
+              }
+            ],
+            [
+              {
+                "arguments": {
+                  "parameters": [
+                    {
+                      "name": "stac_item",
+                      "value": "{{workflow.parameters.stac_item}}"
+                    }
+                  ]
+                },
+                "name": "node-stac",
+                "template": "stac"
+              }
+            ]
+          ]
+        },
+        "namespaced/detect-water-body/normalized-difference": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters"
+                }
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "normalized-difference",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "ndwi",
+                "path": "/norm_diff.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/norm_diff.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/otsu": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters"
+                }
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "otsu",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "otsu",
+                "path": "/otsu.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/otsu.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/stac": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app",
+              "--input-item",
+              "{{inputs.parameters.stac_item}}",
+              "--workflow-id",
+              "{{workflow.name}}"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/stac:0.0.6",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/out/otsu.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/otsu.tif"
+                }
+              }
+            ],
+            "parameters": [
+              {
+                "name": "stac_item"
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "stac",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "artifactGC": {
+                  "strategy": "Never"
+                },
+                "name": "stac",
+                "path": "/final/",
+                "s3": {
+                  "key": "processing-results/{{workflow.name}}"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "storedWorkflowTemplateSpec": {
+        "arguments": {
+          "parameters": [
+            {
+              "name": "aoi",
+              "value": "-121.399,39.834,-120.74,40.472"
+            },
+            {
+              "name": "epsg",
+              "value": "EPSG:4326"
+            },
+            {
+              "name": "stac_item",
+              "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+            },
+            {
+              "name": "bands",
+              "value": "[\"green\", \"nir\"]"
+            }
+          ]
+        },
+        "artifactGC": {
+          "strategy": "OnWorkflowCompletion"
+        },
+        "artifactRepositoryRef": {
+          "configMap": "artifact-repository"
+        },
+        "entrypoint": "detect-water-body",
+        "templates": [
+          {
+            "inputs": {},
+            "metadata": {},
+            "name": "detect-water-body",
+            "outputs": {},
+            "steps": [
+              [
+                {
+                  "arguments": {
+                    "parameters": [
+                      {
+                        "name": "aoi",
+                        "value": "{{workflow.parameters.aoi}}"
+                      },
+                      {
+                        "name": "epsg",
+                        "value": "{{workflow.parameters.epsg}}"
+                      },
+                      {
+                        "name": "stac_item",
+                        "value": "{{workflow.parameters.stac_item}}"
+                      },
+                      {
+                        "name": "bands",
+                        "value": "{{item}}"
+                      }
+                    ]
+                  },
+                  "name": "node-crop",
+                  "template": "crop",
+                  "withParam": "{{workflow.parameters.bands}}"
+                }
+              ],
+              [
+                {
+                  "arguments": {},
+                  "name": "node-normalized-difference",
+                  "template": "normalized-difference"
+                }
+              ],
+              [
+                {
+                  "arguments": {},
+                  "name": "node-otsu",
+                  "template": "otsu"
+                }
+              ],
+              [
+                {
+                  "arguments": {
+                    "parameters": [
+                      {
+                        "name": "stac_item",
+                        "value": "{{workflow.parameters.stac_item}}"
+                      }
+                    ]
+                  },
+                  "name": "node-stac",
+                  "template": "stac"
+                }
+              ]
+            ]
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app",
+                "--aoi",
+                "{{inputs.parameters.aoi}}",
+                "--epsg",
+                "{{inputs.parameters.epsg}}",
+                "--input-item",
+                "{{inputs.parameters.stac_item}}",
+                "--band",
+                "{{inputs.parameters.bands}}"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "parameters": [
+                {
+                  "name": "aoi"
+                },
+                {
+                  "name": "epsg"
+                },
+                {
+                  "name": "stac_item"
+                },
+                {
+                  "name": "bands"
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "crop",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "cropped-band",
+                  "path": "/crop_{{inputs.parameters.bands}}.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/app/rasters",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters"
+                  }
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "normalized-difference",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "ndwi",
+                  "path": "/norm_diff.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/norm_diff.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/app/rasters",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters"
+                  }
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "otsu",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "otsu",
+                  "path": "/otsu.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/otsu.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app",
+                "--input-item",
+                "{{inputs.parameters.stac_item}}",
+                "--workflow-id",
+                "{{workflow.name}}"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/stac:0.0.6",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/out/otsu.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/otsu.tif"
+                  }
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "stac_item"
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "stac",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "artifactGC": {
+                    "strategy": "Never"
+                  },
+                  "name": "stac",
+                  "path": "/final/",
+                  "s3": {
+                    "key": "processing-results/{{workflow.name}}"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "workflowTemplateRef": {
+          "name": "detect-water-body"
+        }
+      },
+      "taskResultsCompletionStatus": {
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721": true
+      }
+    }
+  },
+  "raw_object": {
+    "apiVersion": "argoproj.io/v1alpha1",
+    "kind": "Workflow",
+    "metadata": {
+      "annotations": {
+        "workflows.argoproj.io/pod-name-format": "v2"
+      },
+      "creationTimestamp": "2024-05-05T22:03:36Z",
+      "finalizers": [
+        "workflows.argoproj.io/artifact-gc"
+      ],
+      "generation": 11,
+      "labels": {
+        "workflows.argoproj.io/completed": "true",
+        "workflows.argoproj.io/phase": "Succeeded"
+      },
+      "managedFields": [
+        {
+          "apiVersion": "argoproj.io/v1alpha1",
+          "fieldsType": "FieldsV1",
+          "fieldsV1": {
+            "f:metadata": {
+              "f:annotations": {
+                ".": {},
+                "f:workflows.argoproj.io/pod-name-format": {}
+              },
+              "f:finalizers": {
+                ".": {},
+                "v:\"workflows.argoproj.io/artifact-gc\"": {}
+              },
+              "f:labels": {
+                ".": {},
+                "f:workflows.argoproj.io/completed": {},
+                "f:workflows.argoproj.io/phase": {}
+              }
+            },
+            "f:spec": {},
+            "f:status": {}
+          },
+          "manager": "workflow-controller",
+          "operation": "Update",
+          "time": "2024-05-05T22:03:36Z"
+        }
+      ],
+      "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+      "namespace": "ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f",
+      "resourceVersion": "12022431",
+      "uid": "cf61b151-ef09-4fa2-9889-e72ee6cbd15b"
+    },
+    "spec": {
+      "arguments": {
+        "parameters": [
+          {
+            "name": "aoi",
+            "value": "-121.399,39.834,-120.74,40.472"
+          },
+          {
+            "name": "epsg",
+            "value": "EPSG:4326"
+          },
+          {
+            "name": "stac_item",
+            "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+          },
+          {
+            "name": "bands",
+            "value": "[\"green\", \"nir\"]"
+          }
+        ]
+      },
+      "workflowTemplateRef": {
+        "name": "detect-water-body"
+      }
+    },
+    "status": {
+      "artifactGCStatus": {},
+      "artifactRepositoryRef": {
+        "artifactRepository": {
+          "archiveLogs": true,
+          "s3": {
+            "accessKeySecret": {
+              "key": "access-key",
+              "name": "storage-credentials"
+            },
+            "bucket": "ws-bob",
+            "endpoint": "minio.mkube.dec.earthdaily.com",
+            "insecure": false,
+            "secretKeySecret": {
+              "key": "secret-key",
+              "name": "storage-credentials"
+            }
+          }
+        },
+        "configMap": "artifact-repository",
+        "key": "default-v1-s3-artifact-repository",
+        "namespace": "ws-bob-50525fb8-0b2b-11ef-9d26-0242ac11002f"
+      },
+      "conditions": [
+        {
+          "status": "False",
+          "type": "PodRunning"
+        },
+        {
+          "status": "True",
+          "type": "Completed"
+        }
+      ],
+      "finishedAt": "2024-05-05T22:06:24Z",
+      "nodes": {
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f": {
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782"
+          ],
+          "displayName": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "finishedAt": "2024-05-05T22:06:24Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "outboundNodes": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279"
+          ],
+          "phase": "Succeeded",
+          "progress": "5/5",
+          "resourcesDuration": {
+            "cpu": 30,
+            "memory": 344
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "detect-water-body",
+          "templateScope": "local/",
+          "type": "Steps"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043",
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788"
+          ],
+          "displayName": "[0]",
+          "finishedAt": "2024-05-05T22:04:38Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-2066777782",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "5/5",
+          "resourcesDuration": {
+            "cpu": 30,
+            "memory": 344
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "displayName": "node-stac",
+          "finishedAt": "2024-05-05T22:06:21Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/out/otsu.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/otsu.tif"
+                }
+              }
+            ],
+            "parameters": [
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[3].node-stac",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "artifactGC": {
+                  "strategy": "Never"
+                },
+                "name": "stac",
+                "path": "/final",
+                "s3": {
+                  "key": "processing-results/50525fb8-0b2b-11ef-9d26-0242ac11002f"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-stac-2981635279/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 0,
+            "memory": 7
+          },
+          "startedAt": "2024-05-05T22:06:14Z",
+          "templateName": "stac",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429"
+          ],
+          "displayName": "node-otsu",
+          "finishedAt": "2024-05-05T22:06:07Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters"
+                }
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[2].node-otsu",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "otsu",
+                "path": "/otsu.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/otsu.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-otsu-3132412146/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 2,
+            "memory": 33
+          },
+          "startedAt": "2024-05-05T22:05:44Z",
+          "templateName": "otsu",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595"
+          ],
+          "displayName": "node-crop(1:nir)",
+          "finishedAt": "2024-05-05T22:04:36Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi",
+                "value": "-121.399,39.834,-120.74,40.472"
+              },
+              {
+                "name": "epsg",
+                "value": "EPSG:4326"
+              },
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              },
+              {
+                "name": "bands",
+                "value": "nir"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0].node-crop(1:nir)",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_nir.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/crop_nir.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-crop-3572394788/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 107
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "crop",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595"
+          ],
+          "displayName": "node-crop(0:green)",
+          "finishedAt": "2024-05-05T22:04:36Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043",
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi",
+                "value": "-121.399,39.834,-120.74,40.472"
+              },
+              {
+                "name": "epsg",
+                "value": "EPSG:4326"
+              },
+              {
+                "name": "stac_item",
+                "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+              },
+              {
+                "name": "bands",
+                "value": "green"
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[0].node-crop(0:green)",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_green.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/crop_green.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-crop-3693905043/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 107
+          },
+          "startedAt": "2024-05-05T22:03:36Z",
+          "templateName": "crop",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048"
+          ],
+          "displayName": "node-normalized-difference",
+          "finishedAt": "2024-05-05T22:05:34Z",
+          "hostNodeName": "minikube",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721",
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters"
+                }
+              }
+            ]
+          },
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[1].node-normalized-difference",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "ndwi",
+                "path": "/norm_diff.tif",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/rasters/norm_diff.tif"
+                }
+              },
+              {
+                "name": "main-logs",
+                "s3": {
+                  "key": "50525fb8-0b2b-11ef-9d26-0242ac11002f/50525fb8-0b2b-11ef-9d26-0242ac11002f-normalized-difference-3743516721/main.log"
+                }
+              }
+            ],
+            "exitCode": "0"
+          },
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 8,
+            "memory": 90
+          },
+          "startedAt": "2024-05-05T22:04:38Z",
+          "templateName": "normalized-difference",
+          "templateScope": "local/",
+          "type": "Pod"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721"
+          ],
+          "displayName": "[1]",
+          "finishedAt": "2024-05-05T22:05:44Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-925752595",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[1]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "3/3",
+          "resourcesDuration": {
+            "cpu": 10,
+            "memory": 130
+          },
+          "startedAt": "2024-05-05T22:04:38Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146"
+          ],
+          "displayName": "[2]",
+          "finishedAt": "2024-05-05T22:06:14Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-926297048",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[2]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "2/2",
+          "resourcesDuration": {
+            "cpu": 2,
+            "memory": 40
+          },
+          "startedAt": "2024-05-05T22:05:44Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        },
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429": {
+          "boundaryID": "50525fb8-0b2b-11ef-9d26-0242ac11002f",
+          "children": [
+            "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279"
+          ],
+          "displayName": "[3]",
+          "finishedAt": "2024-05-05T22:06:24Z",
+          "id": "50525fb8-0b2b-11ef-9d26-0242ac11002f-993260429",
+          "name": "50525fb8-0b2b-11ef-9d26-0242ac11002f[3]",
+          "nodeFlag": {},
+          "phase": "Succeeded",
+          "progress": "1/1",
+          "resourcesDuration": {
+            "cpu": 0,
+            "memory": 7
+          },
+          "startedAt": "2024-05-05T22:06:14Z",
+          "templateScope": "local/",
+          "type": "StepGroup"
+        }
+      },
+      "phase": "Succeeded",
+      "progress": "5/5",
+      "resourcesDuration": {
+        "cpu": 30,
+        "memory": 344
+      },
+      "startedAt": "2024-05-05T22:03:36Z",
+      "storedTemplates": {
+        "namespaced/detect-water-body/crop": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app",
+              "--aoi",
+              "{{inputs.parameters.aoi}}",
+              "--epsg",
+              "{{inputs.parameters.epsg}}",
+              "--input-item",
+              "{{inputs.parameters.stac_item}}",
+              "--band",
+              "{{inputs.parameters.bands}}"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "parameters": [
+              {
+                "name": "aoi"
+              },
+              {
+                "name": "epsg"
+              },
+              {
+                "name": "stac_item"
+              },
+              {
+                "name": "bands"
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "crop",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "cropped-band",
+                "path": "/crop_{{inputs.parameters.bands}}.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/detect-water-body": {
+          "inputs": {},
+          "metadata": {},
+          "name": "detect-water-body",
+          "outputs": {},
+          "steps": [
+            [
+              {
+                "arguments": {
+                  "parameters": [
+                    {
+                      "name": "aoi",
+                      "value": "{{workflow.parameters.aoi}}"
+                    },
+                    {
+                      "name": "epsg",
+                      "value": "{{workflow.parameters.epsg}}"
+                    },
+                    {
+                      "name": "stac_item",
+                      "value": "{{workflow.parameters.stac_item}}"
+                    },
+                    {
+                      "name": "bands",
+                      "value": "{{item}}"
+                    }
+                  ]
+                },
+                "name": "node-crop",
+                "template": "crop",
+                "withParam": "{{workflow.parameters.bands}}"
+              }
+            ],
+            [
+              {
+                "arguments": {},
+                "name": "node-normalized-difference",
+                "template": "normalized-difference"
+              }
+            ],
+            [
+              {
+                "arguments": {},
+                "name": "node-otsu",
+                "template": "otsu"
+              }
+            ],
+            [
+              {
+                "arguments": {
+                  "parameters": [
+                    {
+                      "name": "stac_item",
+                      "value": "{{workflow.parameters.stac_item}}"
+                    }
+                  ]
+                },
+                "name": "node-stac",
+                "template": "stac"
+              }
+            ]
+          ]
+        },
+        "namespaced/detect-water-body/normalized-difference": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters"
+                }
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "normalized-difference",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "ndwi",
+                "path": "/norm_diff.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/norm_diff.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/otsu": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/app/rasters",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters"
+                }
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "otsu",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "name": "otsu",
+                "path": "/otsu.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/otsu.tif"
+                }
+              }
+            ]
+          }
+        },
+        "namespaced/detect-water-body/stac": {
+          "container": {
+            "command": [
+              "python",
+              "-m",
+              "app",
+              "--input-item",
+              "{{inputs.parameters.stac_item}}",
+              "--workflow-id",
+              "{{workflow.name}}"
+            ],
+            "env": [
+              {
+                "name": "PATH",
+                "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+              },
+              {
+                "name": "PYTHONPATH",
+                "value": "/app"
+              }
+            ],
+            "image": "harbor.mkube.dec.earthdaily.com/test/stac:0.0.6",
+            "name": "",
+            "resources": {}
+          },
+          "inputs": {
+            "artifacts": [
+              {
+                "name": "rasters",
+                "path": "/out/otsu.tif",
+                "s3": {
+                  "key": "{{workflow.name}}/rasters/otsu.tif"
+                }
+              }
+            ],
+            "parameters": [
+              {
+                "name": "stac_item"
+              }
+            ]
+          },
+          "metadata": {},
+          "name": "stac",
+          "outputs": {
+            "artifacts": [
+              {
+                "archive": {
+                  "none": {}
+                },
+                "artifactGC": {
+                  "strategy": "Never"
+                },
+                "name": "stac",
+                "path": "/final/",
+                "s3": {
+                  "key": "processing-results/{{workflow.name}}"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "storedWorkflowTemplateSpec": {
+        "arguments": {
+          "parameters": [
+            {
+              "name": "aoi",
+              "value": "-121.399,39.834,-120.74,40.472"
+            },
+            {
+              "name": "epsg",
+              "value": "EPSG:4326"
+            },
+            {
+              "name": "stac_item",
+              "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A"
+            },
+            {
+              "name": "bands",
+              "value": "[\"green\", \"nir\"]"
+            }
+          ]
+        },
+        "artifactGC": {
+          "strategy": "OnWorkflowCompletion"
+        },
+        "artifactRepositoryRef": {
+          "configMap": "artifact-repository"
+        },
+        "entrypoint": "detect-water-body",
+        "templates": [
+          {
+            "inputs": {},
+            "metadata": {},
+            "name": "detect-water-body",
+            "outputs": {},
+            "steps": [
+              [
+                {
+                  "arguments": {
+                    "parameters": [
+                      {
+                        "name": "aoi",
+                        "value": "{{workflow.parameters.aoi}}"
+                      },
+                      {
+                        "name": "epsg",
+                        "value": "{{workflow.parameters.epsg}}"
+                      },
+                      {
+                        "name": "stac_item",
+                        "value": "{{workflow.parameters.stac_item}}"
+                      },
+                      {
+                        "name": "bands",
+                        "value": "{{item}}"
+                      }
+                    ]
+                  },
+                  "name": "node-crop",
+                  "template": "crop",
+                  "withParam": "{{workflow.parameters.bands}}"
+                }
+              ],
+              [
+                {
+                  "arguments": {},
+                  "name": "node-normalized-difference",
+                  "template": "normalized-difference"
+                }
+              ],
+              [
+                {
+                  "arguments": {},
+                  "name": "node-otsu",
+                  "template": "otsu"
+                }
+              ],
+              [
+                {
+                  "arguments": {
+                    "parameters": [
+                      {
+                        "name": "stac_item",
+                        "value": "{{workflow.parameters.stac_item}}"
+                      }
+                    ]
+                  },
+                  "name": "node-stac",
+                  "template": "stac"
+                }
+              ]
+            ]
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app",
+                "--aoi",
+                "{{inputs.parameters.aoi}}",
+                "--epsg",
+                "{{inputs.parameters.epsg}}",
+                "--input-item",
+                "{{inputs.parameters.stac_item}}",
+                "--band",
+                "{{inputs.parameters.bands}}"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "parameters": [
+                {
+                  "name": "aoi"
+                },
+                {
+                  "name": "epsg"
+                },
+                {
+                  "name": "stac_item"
+                },
+                {
+                  "name": "bands"
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "crop",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "cropped-band",
+                  "path": "/crop_{{inputs.parameters.bands}}.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/app/rasters",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters"
+                  }
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "normalized-difference",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "ndwi",
+                  "path": "/norm_diff.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/norm_diff.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/app/rasters",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters"
+                  }
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "otsu",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "name": "otsu",
+                  "path": "/otsu.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/otsu.tif"
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "container": {
+              "command": [
+                "python",
+                "-m",
+                "app",
+                "--input-item",
+                "{{inputs.parameters.stac_item}}",
+                "--workflow-id",
+                "{{workflow.name}}"
+              ],
+              "env": [
+                {
+                  "name": "PATH",
+                  "value": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+                },
+                {
+                  "name": "PYTHONPATH",
+                  "value": "/app"
+                }
+              ],
+              "image": "harbor.mkube.dec.earthdaily.com/test/stac:0.0.6",
+              "name": "",
+              "resources": {}
+            },
+            "inputs": {
+              "artifacts": [
+                {
+                  "name": "rasters",
+                  "path": "/out/otsu.tif",
+                  "s3": {
+                    "key": "{{workflow.name}}/rasters/otsu.tif"
+                  }
+                }
+              ],
+              "parameters": [
+                {
+                  "name": "stac_item"
+                }
+              ]
+            },
+            "metadata": {},
+            "name": "stac",
+            "outputs": {
+              "artifacts": [
+                {
+                  "archive": {
+                    "none": {}
+                  },
+                  "artifactGC": {
+                    "strategy": "Never"
+                  },
+                  "name": "stac",
+                  "path": "/final/",
+                  "s3": {
+                    "key": "processing-results/{{workflow.name}}"
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "workflowTemplateRef": {
+          "name": "detect-water-body"
+        }
+      },
+      "taskResultsCompletionStatus": {
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-2981635279": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3132412146": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3572394788": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3693905043": true,
+        "50525fb8-0b2b-11ef-9d26-0242ac11002f-3743516721": true
+      }
+    }
+  }
+}
+2024-05-05 22:06:24.481 | INFO     | water-bodies-argo.service:monitor_workflow:336 - Event: MODIFIED, Workflow: 50525fb8-0b2b-11ef-9d26-0242ac11002f, Phase: Succeeded, Progress: 5/5
+2024-05-05 22:06:24.513 | INFO     | water-bodies-argo.service:monitor_workflow:341 - Workflow monitoring complete
+2024-05-05 22:06:24.513 | INFO     | water-bodies-argo.service:register_catalog:1003 - registering stac_catalog = {'type': 'stac-item', 'url': 's3://ws-bob/processing-results/50525fb8-0b2b-11ef-9d26-0242ac11002f'}
+2024-05-05 22:06:24.554 | INFO     | water-bodies-argo.service:register_catalog:1009 - Register processing results response: 202
+# 105 +++++++++++++++++++++++++++ zoo_service_loader.c 6004 
+This worker can now exit!
+# 105 +++++++++++++++++++++++++++ zoo_service_loader.c 6006 
