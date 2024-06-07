@@ -1,58 +1,31 @@
 import json
 import os
 import sys
-import base64
 from urllib.parse import urlparse
 from dataclasses import dataclass, field
 from typing import Any, Optional
 
-import zoo
+try:
+    import zoo
+except ImportError:
+    class Zoo:
+        SERVICE_SUCCEEDED = "SUCCEEDED"
+        SERVICE_FAILED = "FAILED"
+        def update_status(self, conf, progress):
+            pass
+    zoo = Zoo()
+
 import boto3
 from loguru import logger
 from pystac import read_file
 from pystac.stac_io import DefaultStacIO, StacIO
 from botocore.client import Config
 from kubernetes import client, config, watch
+from kubernetes.client.rest import ApiException
 
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
-
-
-def remove_protocol(url: str):
-    parsed = urlparse(url)
-    return parsed.netloc + parsed.path
-
-
-@dataclass
-class StorageCredentials:
-    access: str
-    bucketname: str
-    projectid: str
-    secret: str
-    endpoint: str
-    region: str
-
-
-@dataclass
-class Endpoint:
-    id: str
-    url: str
-
-
-@dataclass
-class ContainerRegistry:
-    username: str
-    password: str
-    url: str
-
-
-@dataclass
-class WorkspaceCredentials:
-    status: str
-    endpoints: list[Endpoint]
-    storage: StorageCredentials
-    container_registry: ContainerRegistry
 
 
 class JobInformation:
@@ -64,11 +37,18 @@ class JobInformation:
         self.process_usid = conf["lenv"]["usid"]
         self.namespace = conf.get("zooServicesNamespace", {}).get("namespace", "")
         self.workspace_prefix = conf.get("eoepca", {}).get("workspace_prefix", "ws")
+        self.job_workspace_suffix = conf.get("eoepca", {}).get(
+            "job_workspace_suffix", "job"
+        )
         self.input_parameters = self._parse_input_parameters()
 
     @property
     def workspace(self):
         return f"{self.workspace_prefix}-{self.namespace}"
+
+    @property
+    def job_workspace(self):
+        return f"{self.workspace_prefix}-{self.namespace}-{self.job_workspace_suffix}"
 
     @property
     def working_dir(self):
@@ -103,42 +83,17 @@ class JobInformation:
         process_identifier = {self.process_identifier}
         process_usid = {self.process_usid}
         workspace = {self.workspace}
+        job_workspace = {self.job_workspace}
         working_dir = {self.working_dir}
         namespace = {self.namespace}
         input_parameters = {json.dumps(self.input_parameters, indent=2)}
-        *****************************************************
-        """
-
-
-@dataclass
-class WorkflowStorageCredentials:
-    url: str
-    access_key: str
-    secret_key: str
-    insecure: bool = True
-
-    def __post_init__(self):
-        parsed_url = urlparse(self.url)
-        self.url = parsed_url.netloc
-        storage_protocol = parsed_url.scheme
-        self.insecure = storage_protocol == "http"
+        *****************************************************"""
 
 
 @dataclass
 class WorkflowConfig:
     conf: dict
     job_information: JobInformation
-    namespace: Optional[str] = field(default=None)
-    workflow_template: Optional[str] = field(default=None)
-    workflow_id: Optional[str] = field(default=None)
-    workflow_parameters: list[dict] = field(default_factory=list)
-    storage_credentials: Optional[WorkflowStorageCredentials] = field(default=None)
-    container_registry: Optional[ContainerRegistry] = field(default=None)
-
-    def __post_init__(self):
-        self.namespace = self.job_information.workspace
-        self.workflow_id = self.job_information.process_usid
-        self.workflow_parameters = self.job_information.input_parameters
 
 
 class CustomStacIO(DefaultStacIO):
@@ -193,10 +148,10 @@ class ArgoWorkflow:
     def __init__(self, workflow_config: WorkflowConfig):
         self.workflow_config = workflow_config
         self.conf = workflow_config.conf
-        self.job_namespace: Optional[str] = None
+        self.job_information = workflow_config.job_information
+        self.job_namespace = self.job_information.job_workspace
         self.workflow_manifest: Optional[dict[str, Any]] = None
         self.feature_collection = json.dumps({}, indent=2)
-        self.job_information = workflow_config.job_information
 
         # Load the kube config from the default location
         logger.info("Loading kube config")
@@ -209,177 +164,13 @@ class ArgoWorkflow:
         self.rbac_v1 = client.RbacAuthorizationV1Api()
         self.custom_api = client.CustomObjectsApi()
 
-    def _create_job_namespace(self):
-        # Create the namespace
-        if self.workflow_config.workflow_id is None:
-            raise ValueError("workflow_id is required")
-
-        self.job_namespace = f"{self.workflow_config.namespace}-{self.workflow_config.workflow_id}".lower()
-        logger.info(f"Creating namespace: {self.job_namespace}")
-        namespace_body = client.V1Namespace(
-            metadata=client.V1ObjectMeta(name=self.job_namespace)
-        )
-        self.v1.create_namespace(body=namespace_body)
-
-    # Create storage secret on K8s
-    def _create_storage_secret(self):
-        logger.info(f"Creating storage secrets for namespace: {self.job_namespace}")
-        secret_body = client.V1Secret(
-            metadata=client.V1ObjectMeta(
-                name="storage-credentials"
-            ),  # this name needs to match the configuration for the workflow-controller (workflow-controller-configmap)
-            string_data={
-                "access-key": self.workflow_config.storage_credentials.access_key,
-                "secret-key": self.workflow_config.storage_credentials.secret_key,
-            },
-        )
-        self.v1.create_namespaced_secret(namespace=self.job_namespace, body=secret_body)
-
-    # Create container registry secret on K8s
-    def _create_container_registry_secret(self):
-        logger.info(
-            f"Creating container registry secrets for namespace: {self.job_namespace}"
-        )
-
-        # Configure the secret
-        secret = client.V1Secret()
-        secret.api_version = "v1"
-        secret.kind = "Secret"
-        secret.type = "kubernetes.io/dockerconfigjson"
-        secret.metadata = client.V1ObjectMeta(name="container-registry-credentials")
-
-        # Create the .dockerconfigjson
-        docker_config = {
-            "auths": {
-                remove_protocol(self.workflow_config.container_registry.url): {
-                    "username": self.workflow_config.container_registry.username,
-                    "password": self.workflow_config.container_registry.password,
-                }
-            }
-        }
-
-        # Encode the .dockerconfigjson
-        docker_config_bytes = bytes(json.dumps(docker_config), "utf-8")
-        docker_config_base64 = base64.b64encode(docker_config_bytes)
-
-        # Add the .dockerconfigjson to the secret
-        secret.data = {".dockerconfigjson": docker_config_base64.decode("utf-8")}
-
-        # Create the secret
-        self.v1.create_namespaced_secret(namespace=self.job_namespace, body=secret)
-
-        # Add the secret to the default service account
-        service_account = self.v1.read_namespaced_service_account(
-            name="default", namespace=self.job_namespace
-        )
-        
-        if service_account.image_pull_secrets is None:
-            service_account.image_pull_secrets = []
-        
-        service_account.image_pull_secrets.append(
-            client.V1ObjectReference(name="container-registry-credentials")
-        )
-        self.v1.replace_namespaced_service_account(
-            name="default", namespace=self.job_namespace, body=service_account
-        )
-
-    def _create_artifact_repository_configmap(self):
-        logger.info(
-            f"Creating artifact repository configmap for namespace: {self.job_namespace}"
-        )
-        # Define ConfigMap metadata
-        metadata = client.V1ObjectMeta(
-            name="artifact-repository",
-            annotations={
-                "workflows.argoproj.io/default-artifact-repository": "default-v1-s3-artifact-repository"
-            },
-        )
-
-        # Define ConfigMap data
-        data = {
-            "default-v1-s3-artifact-repository": f"""
-            archiveLogs: true
-            s3:
-                bucket: {self.workflow_config.namespace}
-                endpoint: {self.workflow_config.storage_credentials.url}
-                insecure: {str(self.workflow_config.storage_credentials.insecure).lower()}
-                accessKeySecret:
-                    name: storage-credentials
-                    key: access-key
-                secretKeySecret:
-                    name: storage-credentials
-                    key: secret-key
-            """
-        }
-
-        # Create ConfigMap object
-        config_map = client.V1ConfigMap(
-            api_version="v1", kind="ConfigMap", metadata=metadata, data=data
-        )
-
-        # Create ConfigMap
-        self.v1.create_namespaced_config_map(
-            namespace=self.job_namespace, body=config_map
-        )
-
-    # Create the Role
-    def _create_job_role(self):
-        logger.info(f"Creating role for namespace: {self.job_namespace}")
-
-        # artifactGC role
-        artifact_gc_policy_rule = client.V1PolicyRule(
-            api_groups=["argoproj.io"],
-            resources=[
-                "workflows",
-                "workflows/finalizers",
-                "workflowartifactgctasks",
-                "workflowartifactgctasks/status",
-            ],
-            verbs=["get", "list", "watch", "create", "update", "patch", "delete"],
-        )
-
-        pods_policy_rule = client.V1PolicyRule(
-            api_groups=[""],
-            resources=["pods"],
-            verbs=["get", "list", "watch", "create", "update", "patch", "delete"],
-        )
-
-        role_body = client.V1Role(
-            metadata=client.V1ObjectMeta(name="pod-patcher"),
-            rules=[pods_policy_rule, artifact_gc_policy_rule],
-        )
-
-        self.rbac_v1.create_namespaced_role(
-            namespace=self.job_namespace, body=role_body
-        )
-
-    # Create the RoleBinding
-    def _create_job_role_binding(self):
-        logger.info(f"Creating role binding for namespace: {self.job_namespace}")
-        role_binding_body = client.V1RoleBinding(
-            metadata=client.V1ObjectMeta(name="pod-patcher-binding"),
-            subjects=[
-                {
-                    "kind": "ServiceAccount",
-                    "name": "default",
-                    "namespace": self.job_namespace,
-                }
-            ],
-            role_ref=client.V1RoleRef(
-                api_group="rbac.authorization.k8s.io", kind="Role", name="pod-patcher"
-            ),
-        )
-        self.rbac_v1.create_namespaced_role_binding(
-            namespace=self.job_namespace, body=role_binding_body
-        )
-
-    def _create_job_information_configmap(self):
+    def _create_job_env_variables_configmap(self):
         logger.info(
             f"Creating job information configmap for namespace: {self.job_namespace}"
         )
         # Define ConfigMap metadata
         metadata = client.V1ObjectMeta(
-            name="environment-variables",
+            name=f"env-variables-{self.job_information.process_usid}",
             labels={"workflows.argoproj.io/configmap-type": "Parameter"},
         )
 
@@ -410,52 +201,40 @@ class ArgoWorkflow:
         )
 
     def _save_template_job_namespace(self):
-        template_manifest = self.workflow_manifest
-        logger.info(f"template_manifest = {json.dumps(template_manifest, indent=2)}")
-        template_manifest["metadata"]["name"] = template_manifest["metadata"][
-            "name"
-        ].lower()
-        template_manifest["metadata"]["namespace"] = self.job_namespace
-        template_manifest["metadata"]["resourceVersion"] = None
-        self.save_workflow_template(
-            template_manifest=template_manifest, namespace=self.job_namespace
+        logger.debug(
+            f"template_manifest = {json.dumps(self.workflow_manifest, indent=2)}"
         )
 
-    def load_workflow_template(self):
-        try:
-            if self.workflow_config.workflow_template is None:
-                raise ValueError("workflow_template is required")
+        # TODO: try to load the template from the workspace namespace
+        name = self.workflow_manifest["metadata"]["name"].lower()
+        version = self.workflow_manifest["metadata"]["version"]
+        self.workflow_manifest["metadata"]["name"] = f"{name}-{version}"
+        self.workflow_manifest["metadata"] = {
+            **self.workflow_manifest["metadata"],
+            "namespace": self.job_namespace,
+            "resourceVersion": version,
+        }
 
-            # Get the template
-            self.workflow_manifest = self.custom_api.get_namespaced_custom_object(
-                group="argoproj.io",
-                version="v1alpha1",
-                namespace=self.workflow_config.namespace,
-                plural="workflowtemplates",
-                name=self.workflow_config.workflow_template,
-            )
+        existing_template = self._load_workflow_template()
 
-        except Exception as e:
-            logger.error(f"Error loading template: {e}")
-            raise e
+        if existing_template is not None:
+            # TODO: should update?
+            return
 
-    def save_workflow_template(
-        self, template_manifest: dict[str, Any], namespace: Optional[str] = None
-    ):
+        # save workflow template if it does not exist
         try:
             # Create the template
-            namespace = namespace or self.workflow_config.namespace
-            workflow_template_name = template_manifest["metadata"]["name"]
+            workflow_template_name = self.workflow_manifest["metadata"]["name"]
             logger.info(
-                f"Creating workflow template {workflow_template_name} on namespace {namespace}"
+                f"Creating workflow template {workflow_template_name} on namespace {self.job_namespace}"
             )
 
             self.custom_api.create_namespaced_custom_object(
                 group="argoproj.io",
                 version="v1alpha1",
-                namespace=namespace,
+                namespace=self.job_namespace,
                 plural="workflowtemplates",
-                body=template_manifest,
+                body=self.workflow_manifest,
             )
             logger.info(
                 f"Workflow template {workflow_template_name} created successfully"
@@ -464,22 +243,47 @@ class ArgoWorkflow:
             logger.error(f"Error saving template: {e}")
             raise e
 
+    def _load_workflow_template(self):
+        try:
+            if self.workflow_manifest is None:
+                raise ValueError("workflow_manifest is required")
+
+            # Get the template
+            return self.custom_api.get_namespaced_custom_object(
+                group="argoproj.io",
+                version="v1alpha1",
+                namespace=self.job_namespace,
+                plural="workflowtemplates",
+                name=self.workflow_manifest["metadata"]["name"],
+            )
+        except ApiException as e:
+            if e.status == 404:
+                logger.info("Workflow template not found")
+                return None
+            else:
+                raise e
+        except Exception as e:
+            logger.error(f"Error loading template: {e}")
+            raise e
+
     # Submit the workflow
     def _submit_workflow(self):
-        if self.workflow_config.workflow_id is None:
+        logger.info(f"Submitting workflow {self.job_information.process_usid}")
+
+        if self.job_information.process_usid is None:
             raise ValueError("workflow_id is required")
 
         workflow_manifest = {
             "apiVersion": "argoproj.io/v1alpha1",
             "kind": "Workflow",
-            "metadata": {"name": f"{self.workflow_config.workflow_id}".lower()},
+            "metadata": {"name": f"{self.job_information.process_usid}".lower()},
             "spec": {
                 "workflowTemplateRef": {
                     "name": self.workflow_manifest["metadata"]["name"],
                     "namespace": self.workflow_manifest["metadata"]["namespace"],
                 },
                 "arguments": {
-                    "parameters": self.workflow_config.workflow_parameters  # Add parameters if provided
+                    "parameters": self.job_information.input_parameters  # Add parameters if provided
                 },
             },
         }
@@ -502,7 +306,7 @@ class ArgoWorkflow:
         zoo.update_status(self.conf, progress)
 
     # Monitor the workflow execution
-    def monitor_workflow(self, workflow: dict):
+    def _monitor_workflow(self, workflow: dict):
         logger.info(f"Monitoring workflow {workflow['metadata']['name']}")
 
         if self.job_namespace is None:
@@ -549,79 +353,54 @@ class ArgoWorkflow:
         else:
             return zoo.SERVICE_FAILED
 
-    def run(self):
-        # Load the workflow template
-        logger.info(
-            f"Loading workflow template: {self.workflow_config.workflow_template}"
-        )
-        self.load_workflow_template()
+    def run(self, workflow_file: Optional[dict[str, Any]] = None):
+        try:
+            if workflow_file is not None:
+                self.workflow_manifest = workflow_file
+            else:
+                # Load the workflow template
+                logger.info("Loading workflow template")
+                self.workflow_manifest = self._load_workflow_template()
 
-        # Create the namespace, access key, and secret key
-        logger.info("Creating namespace, roles, and storage secrets")
-        self._create_job_namespace()
-        self._create_storage_secret()
-        self._create_container_registry_secret()
-        self._create_artifact_repository_configmap()
-        self._create_job_role()
-        self._create_job_role_binding()
-        self._create_job_information_configmap()
+            # Create configmap with Job information
+            logger.info("Creating job information configmap")
+            self._create_job_env_variables_configmap()
 
-        # Template workflow needs to be on the same namespace as the job
-        self._save_template_job_namespace()
+            # Template workflow needs to be on the same namespace as the job
+            self._save_template_job_namespace()
 
-        workflow = self._submit_workflow()
-        exit_status = self.monitor_workflow(workflow)
+            workflow = self._submit_workflow()
+            exit_status = self._monitor_workflow(workflow)
 
-        self.save_workflow_logs()
+            self._save_workflow_logs()
 
-        return exit_status
-
-    def run_workflow_from_file(self, workflow_file: dict[str, Any]):
-        self.workflow_manifest = workflow_file
-
-        ### This part will be moved to workspace-api -> create workspace
-        # Create the namespace, access key, and secret key
-        logger.info("Creating namespace, roles, and storage secrets")
-        self._create_job_namespace()
-        self._create_storage_secret()
-        self._create_container_registry_secret()
-        self._create_artifact_repository_configmap()
-        self._create_job_role()
-        self._create_job_role_binding()
-        self._create_job_information_configmap()
-        ####################################################################
-
-        # Template workflow needs to be on the same namespace as the job
-        self._save_template_job_namespace()
-
-        workflow = self._submit_workflow()
-        exit_status = self.monitor_workflow(workflow)
-
-        self.save_workflow_logs()
-
-        return exit_status
+            return exit_status
+        except Exception as e:
+            logger.error(f"Error running workflow: {e}")
+            self._save_workflow_logs()
+            return zoo.SERVICE_FAILED
 
     def get_collection(self):
         StacIO.set_default(CustomStacIO)
         collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
         logger.info(f"Getting collection at {collection_s3_path}")
         return read_file(collection_s3_path)
+    
+    def _get_pods_for_workflow(self):
+        pods = self.v1.list_namespaced_pod(namespace=self.job_namespace)
+        return [pod.metadata.name for pod in pods.items if self.job_information.process_usid in pod.metadata.name]
 
-    def save_workflow_logs(self, log_filename="logs.log"):
+    def _save_workflow_logs(self, log_filename="logs.log"):
         try:
             logger.info(
-                f"Getting logs for workflow {self.workflow_config.workflow_id} in namespace {self.job_namespace}"
+                f"Getting logs for workflow {self.job_information.process_usid} in namespace {self.job_namespace}"
             )
             # list pods for namespace
-            pods = self.v1.list_namespaced_pod(namespace=self.job_namespace)
+            pods = self._get_pods_for_workflow()
 
             logger.info(f"Saving logs to {log_filename}")
             with open(log_filename, "w") as f:
-                for pod in pods.items:
-                    # only get logs from pods that belong to the workflow
-                    if self.workflow_config.workflow_id not in pod.metadata.name:
-                        continue
-
+                for pod in pods:
                     try:
                         logger.info(f"Getting logs for pod {pod.metadata.name}")
                         f.write(f"{'='*80}\n")
@@ -640,6 +419,7 @@ class ArgoWorkflow:
                         logger.error(
                             f"Error getting logs for pod {pod.metadata.name}: {e}"
                         )
+                        f.write(f"Error getting logs for pod {pod.metadata.name}: {e}")
 
                 logger.info(f"Logs saved to {log_filename}")
                 f.write(f"\n{'='*80}\n")
@@ -651,7 +431,7 @@ class ArgoWorkflow:
             )
 
             #
-            servicesLogs = {
+            services_logs = {
                 "url": os.path.join(
                     self.conf["main"]["tmpUrl"],
                     f"{self.job_information.process_identifier}-{self.job_information.process_usid}",
@@ -664,18 +444,36 @@ class ArgoWorkflow:
             if not self.conf.get("service_logs"):
                 self.conf["service_logs"] = {}
 
-            for key in servicesLogs.keys():
-                self.conf["service_logs"][key] = servicesLogs[key]
+            for key in services_logs.keys():
+                self.conf["service_logs"][key] = services_logs[key]
 
             self.conf["service_logs"]["length"] = "1"
 
         except Exception as e:
             logger.error(f"Error getting logs: {e}")
-            # raise e
 
     def delete_workflow(self):
         try:
-            self.v1.delete_namespace(name=self.job_namespace)
-            logger.info(f"Namespace {self.job_namespace} deleted.")
+            # delete the pods
+            pods = self._get_pods_for_workflow()
+            for pod in pods:
+                self.v1.delete_namespaced_pod(name=pod.metadata.name, namespace=self.job_namespace)
+
+            # delete configmap with env variables
+            self.v1.delete_namespaced_config_map(
+                name=f"env-variables-{self.job_information.process_usid}",
+                namespace=self.job_namespace,
+            )
+
+            # delete the workflow
+            self.custom_api.delete_namespaced_custom_object(
+                group="argoproj.io",
+                version="v1alpha1",
+                namespace=self.job_namespace,
+                plural="workflows",
+                name=self.job_information.process_usid,
+            )
+
+            logger.info(f"Resources for {self.job_namespace}-{self.job_information.process_usid} deleted.")
         except Exception as e:
-            logger.error(f"Error deleting namespace {self.job_namespace}: {e}")
+            logger.error(f"Error deleting Resources for {self.job_namespace}-{self.job_information.process_usid}: {e}")

@@ -9,69 +9,20 @@ import yaml
 
 from .argo_workflow import (
     ArgoWorkflow,
-    ContainerRegistry,
     JobInformation,
     WorkflowConfig,
-    WorkflowStorageCredentials,
-    WorkspaceCredentials,
-    Endpoint,
-    StorageCredentials,
 )
 
 
 class ADES:
+    job_information: JobInformation
+
     def __init__(self, conf, inputs, outputs):
         self.conf = conf
         self.inputs = inputs
         self.outputs = outputs
 
-    def get_credentials(self, workspace: str) -> WorkspaceCredentials:
-        os.environ.pop("HTTP_PROXY", None)
-        logger.info("Getting credentials")
-        response = requests.get(f"http://workspace-api.rm:8080/workspaces/{workspace}")
-        response.raise_for_status()
-
-        response_api = response.json()
-
-        logger.info(f"response_api = {json.dumps(response_api, indent=4)}")
-
-        endpoints = [
-            Endpoint(id=e["id"], url=e["url"]) for e in response_api["endpoints"]
-        ]
-
-        logger.info("Creating StorageCredentials")
-        storage = StorageCredentials(
-            access=response_api["storage"]["credentials"]["access"],
-            bucketname=response_api["storage"]["credentials"]["bucketname"],
-            projectid=response_api["storage"]["credentials"]["projectid"],
-            secret=response_api["storage"]["credentials"]["secret"],
-            endpoint=response_api["storage"]["credentials"]["endpoint"],
-            region=response_api["storage"]["credentials"]["region"],
-        )
-
-        logger.info("Creating ContainerRegistry")
-        container_registry = ContainerRegistry(
-            username=response_api["container_registry"]["username"],
-            password=response_api["container_registry"]["password"],
-            url=response_api["container_registry"]["url"],
-        )
-
-        # set environment variables
-        logger.info("Setting environment variables")
-        os.environ["AWS_REGION"] = storage.region
-        os.environ["AWS_S3_ENDPOINT"] = storage.endpoint
-        os.environ["AWS_ACCESS_KEY_ID"] = storage.access
-        os.environ["AWS_SECRET_ACCESS_KEY"] = storage.secret
-
-        logger.info("Creating WorkspaceCredentials")
-        return WorkspaceCredentials(
-            status=response_api["status"],
-            endpoints=endpoints,
-            storage=storage,
-            container_registry=container_registry,
-        )
-
-    def load_workflow_template_from_file(
+    def _load_workflow_template_from_file(
         self, file_name: str = "app-package.cwl"
     ) -> dict[str, Any]:
         logger.info(f"open file: {file_name}")
@@ -79,6 +30,8 @@ class ADES:
         # this will read files from /opt/zooservices_user/<namespace>/<service_name>/<file_name>
         zoo_service_namespace = self.conf["lenv"]["cwd"]
         zoo_service_name = self.conf["lenv"]["Identifier"]
+        logger.info(f"zoo_service_namespace = {zoo_service_namespace}")
+        logger.info(f"zoo_service_name = {zoo_service_name}")
 
         with open(
             os.path.join(
@@ -92,26 +45,26 @@ class ADES:
 
         return argo_template
 
-    def register_catalog(self, job_information: JobInformation):
+    def register_catalog(self):
         os.environ.pop("HTTP_PROXY", None)
         workspace_api_endpoint = "http://workspace-api.rm:8080"
         stac_catalog = {
             "type": "stac-item",
-            "url": f"s3://{job_information.workspace}/processing-results/{job_information.process_usid}",
+            "url": f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}",
         }
         logger.info(f"registering stac_catalog = {stac_catalog}")
         headers = {
             "Content-Type": "application/json",
         }
         r = requests.post(
-            f"{workspace_api_endpoint}/workspaces/{job_information.workspace}/register",
+            f"{workspace_api_endpoint}/workspaces/{self.job_information.workspace}/register",
             json=stac_catalog,
             headers=headers,
         )
         r.raise_for_status()
         logger.info(f"Register processing results response: {r.status_code}")
 
-    def register_collection(self, job_information: JobInformation, collection: str):
+    def register_collection(self, collection: str):
         os.environ.pop("HTTP_PROXY", None)
         workspace_api_endpoint = "http://workspace-api.rm:8080"
         collection_dict = json.loads(collection)
@@ -120,70 +73,64 @@ class ADES:
             "Content-Type": "application/json",
         }
         r = requests.post(
-            f"{workspace_api_endpoint}/workspaces/{job_information.workspace}/register-json",
+            f"{workspace_api_endpoint}/workspaces/{self.job_information.workspace}/register-json",
             json=collection_dict,
             headers=headers,
         )
         r.raise_for_status()
         logger.info(f"Register processing results response: {r.status_code}")
 
-    def prepare_work_directory(self, job_information: JobInformation):
+    def _prepare_work_directory(self):
+        logger.info("Preparing work directory")
         os.makedirs(
-            job_information.working_dir,
+            self.job_information.working_dir,
             mode=0o777,
             exist_ok=True,
         )
-        os.chdir(job_information.working_dir)
+        os.chdir(self.job_information.working_dir)
 
     def execute_runner(self):
         try:
             logger.info("Starting execute runner")
-            argo_template = self.load_workflow_template_from_file()
+            argo_template = self._load_workflow_template_from_file()
 
-            job_information = JobInformation(conf=self.conf, inputs=self.inputs)
-            logger.info(job_information)
+            self.job_information = JobInformation(conf=self.conf, inputs=self.inputs)
+            logger.info(self.job_information)
 
-            self.prepare_work_directory(job_information)
+            self._prepare_work_directory()
 
             logger.info("Starting execute runner")
 
             # run workflow on Argo
             # from API
-            logger.info(
-                f"Preparing job on workspace {job_information.workspace} with process (workflow) {job_information.process_usid}"
-            )
+            logger.info(f"Preparing job on workspace: {self.job_information.workspace}")
+            logger.info(f"Job process (workflow): {self.job_information.process_usid}")
 
             # get Storage credentials from workspace-api.
             # TODO: Use the default storage credentials for the global workspace
-            workspace_credentials = self.get_credentials(job_information.workspace)
+            # workspace_credentials = get_credentials(self.job_information.workspace)
 
             #############################################################
             workflow_config = WorkflowConfig(
                 conf=self.conf,
-                job_information=job_information,
-                storage_credentials=WorkflowStorageCredentials(
-                    url=workspace_credentials.storage.endpoint,
-                    access_key=workspace_credentials.storage.access,
-                    secret_key=workspace_credentials.storage.secret,
-                ),
-                container_registry=workspace_credentials.container_registry,
+                job_information=self.job_information,
             )
 
             # run the workflow
             logger.info("Running workflow")
             argo_workflow = ArgoWorkflow(workflow_config=workflow_config)
-            exit_status = argo_workflow.run_workflow_from_file(argo_template)
+            exit_status = argo_workflow.run(workflow_file=argo_template)
 
             # if there is a collection_id on the input, add the processed item into that collection
             if exit_status == zoo.SERVICE_SUCCEEDED:
                 collection = argo_workflow.feature_collection
                 logger.info("Registering collection")
-                self.register_collection(job_information, collection)
+                self.register_collection(collection)
 
                 # Register Catalog
                 # TODO: consider more use cases
                 logger.info("Registering catalog")
-                self.register_catalog(job_information)
+                self.register_catalog()
 
                 logger.info(
                     f"Setting Collection into output key {list(self.outputs.keys())[0]}"

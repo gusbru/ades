@@ -1,0 +1,39 @@
+{
+    "aoi": {
+        "value": "-121.399,39.834,-120.74,40.472",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "1",
+        "dataType": "string"
+    },
+    "epsg": {
+        "value": "EPSG:4326",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "1",
+        "dataType": "string"
+    },
+    "stac_item": {
+        "value": "https://earth-search.aws.element84.com/v0/collections/sentinel-s2-l2a-cogs/items/S2B_10TFK_20230114_0_L2A",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "999",
+        "dataType": "string"
+    },
+    "bands": {
+        "value": [
+            "green",
+            "nir"
+        ],
+        "cache_file": [
+            null,
+            null
+        ],
+        "length": "2",
+        "isArray": "true",
+        "value_1": "nir",
+        "inRequest": "true",
+        "minOccurs": "1",
+        "maxOccurs": "999"
+    }
+}

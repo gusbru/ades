@@ -1,0 +1,181 @@
+parameters:
+  - name: aoi
+    title: Area of interest
+    description: The area of interest to detect water bodies.
+    input_type: string
+  - name: epsg
+    title: EPSG
+    description: The EPSG code of the area of interest.
+    input_type: string
+  - name: stac_item
+    title: STAC Item
+    description: The STAC Item to process.
+    input_type: string
+  - name: bands
+    title: Bands
+    description: The bands to process.
+    input_type: string
+    default: ["green", "nir"]
+apiVersion: argoproj.io/v1alpha1
+kind: WorkflowTemplate
+metadata:
+  name: detect-water-body
+  version: 1.0.1
+  title: Water Bodies Detection
+  description: This workflow template detects water bodies in a given area of interest.
+spec:
+  entrypoint: detect-water-body
+  artifactRepositoryRef:
+    configMap: artifact-repository
+  # artifactGC:
+  #   strategy: OnWorkflowCompletion  # default Strategy set here applies to all Artifacts by default
+  templates:
+  - name: detect-water-body
+    steps:
+    - - name: node-crop
+        template: crop
+        arguments:
+          parameters:
+          - name: aoi
+            value: "{{workflow.parameters.aoi}}"
+          - name: epsg
+            value: "{{workflow.parameters.epsg}}"
+          - name: stac_item
+            value: "{{workflow.parameters.stac_item}}"
+          - name: bands
+            value: "{{item}}"
+        withParam: "{{workflow.parameters.bands}}"
+    - - name: node-normalized-difference
+        template: normalized-difference
+    - - name: node-otsu
+        template: otsu
+    - - name: node-stac
+        template: stac
+        arguments:
+          parameters:
+          - name: stac_item
+            value: "{{workflow.parameters.stac_item}}"
+  
+  - name: crop
+    inputs:
+      parameters:
+      - name: aoi
+      - name: epsg
+      - name: stac_item
+      - name: bands
+    container:
+      image: ghcr.io/terradue/ogc-eo-application-package-hands-on/crop:1.5.0
+      command: 
+        - python
+        - -m
+        - app
+        - "--aoi"
+        - "{{inputs.parameters.aoi}}"
+        - "--epsg"
+        - "{{inputs.parameters.epsg}}"
+        - "--input-item"
+        - "{{inputs.parameters.stac_item}}"
+        - "--band"
+        - "{{inputs.parameters.bands}}"
+      env:
+        - name: PATH
+          value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        - name: PYTHONPATH
+          value: /app
+    outputs:
+      artifacts:
+      - name: cropped-band
+        path: /crop_{{inputs.parameters.bands}}.tif
+        archive:
+          none: {}
+        s3:
+          key: "{{workflow.name}}/rasters/crop_{{inputs.parameters.bands}}.tif"
+          
+  - name: normalized-difference
+    inputs:
+      artifacts:
+        - name: rasters
+          path: /app/rasters
+          s3:
+            key: "{{workflow.name}}/rasters"
+    container:
+      image: harbor.mkube.dec.earthdaily.com/test/norm_diff:0.0.2
+      command: 
+        - python
+        - -m
+        - app
+      env:
+        - name: PATH
+          value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        - name: PYTHONPATH
+          value: /app
+    outputs:
+      artifacts:
+      - name: ndwi
+        path: /norm_diff.tif
+        archive:
+          none: {}
+        s3:
+          key: "{{workflow.name}}/rasters/norm_diff.tif"
+
+  - name: otsu
+    inputs:
+      artifacts:
+        - name: rasters
+          path: /app/rasters
+          s3:
+            key: "{{workflow.name}}/rasters"
+    container:
+      image: harbor.mkube.dec.earthdaily.com/test/otsu:0.0.3
+      command: 
+        - python
+        - -m
+        - app
+      env:
+        - name: PATH
+          value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        - name: PYTHONPATH
+          value: /app
+    outputs:
+      artifacts:
+      - name: otsu
+        path: /otsu.tif
+        archive:
+          none: {}
+        s3:
+          key: "{{workflow.name}}/rasters/otsu.tif"
+
+  - name: stac
+    inputs:
+      parameters:
+        - name: stac_item
+      artifacts:
+        - name: rasters
+          path: /out/otsu.tif
+          s3:
+            key: "{{workflow.name}}/rasters/otsu.tif"
+    container:
+      image: harbor.mkube.dec.earthdaily.com/test/stac:0.0.6
+      command: 
+        - python
+        - -m
+        - app
+        - "--input-item"
+        - "{{inputs.parameters.stac_item}}"
+        - "--workflow-id"
+        - "{{workflow.name}}"
+      env:
+        - name: PATH
+          value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        - name: PYTHONPATH
+          value: /app
+    outputs:
+      artifacts:
+      - name: stac
+        path: /final/
+        archive:
+          none: {}
+        s3:
+          key: "processing-results/{{workflow.name}}"
+        artifactGC:
+          strategy: Never
