@@ -332,7 +332,9 @@ class ArgoWorkflow:
             workflow = self._submit_workflow()
             exit_status = self._monitor_workflow(workflow)
 
+            self._save_feature_collection()
             self._save_workflow_logs()
+            
 
             return exit_status
         except Exception as e:
@@ -347,9 +349,17 @@ class ArgoWorkflow:
         return read_file(collection_s3_path)
     
     def _get_pods_for_workflow(self):
+        logger.info(f"Getting pods for workflow {self.job_information.process_usid}")
         pods = self.v1.list_namespaced_pod(namespace=self.job_namespace)
-        return [pod.metadata.name for pod in pods.items if self.job_information.process_usid in pod.metadata.name]
+        return [pod for pod in pods.items if self.job_information.process_usid in pod.metadata.name]
 
+    def _save_feature_collection(self):
+        # get results
+        collection = self.get_collection()
+        self.feature_collection = json.dumps(
+            collection.to_dict(transform_hrefs=False)
+        )
+    
     def _save_workflow_logs(self, log_filename="logs.log"):
         try:
             logger.info(
@@ -383,12 +393,6 @@ class ArgoWorkflow:
 
                 logger.info(f"Logs saved to {log_filename}")
                 f.write(f"\n{'='*80}\n")
-
-            # get results
-            collection = self.get_collection()
-            self.feature_collection = json.dumps(
-                collection.to_dict(transform_hrefs=False)
-            )
 
             #
             services_logs = {
