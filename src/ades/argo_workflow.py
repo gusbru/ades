@@ -101,18 +101,24 @@ class CustomStacIO(DefaultStacIO):
 
     def __init__(self):
         logger.info("CustomStacIO init")
-        logger.info(f"AWS_REGION = {os.environ.get('AWS_REGION')}")
-        logger.info(f"AWS_S3_ENDPOINT = {os.environ.get('AWS_S3_ENDPOINT')}")
-        logger.info(f"AWS_ACCESS_KEY_ID = {os.environ.get('AWS_ACCESS_KEY_ID')}")
+        s3_region = os.environ.get('STAGEOUT_AWS_REGION')
+        s3_endpoint = os.environ.get('STAGEOUT_AWS_SERVICEURL')
+        s3_access_key_id = os.environ.get('STAGEOUT_AWS_ACCESS_KEY_ID')
+        s3_access_key = os.environ.get('STAGEOUT_AWS_SECRET_ACCESS_KEY')
+        
+        logger.info(f"AWS_REGION = {s3_region}")
+        logger.info(f"AWS_S3_ENDPOINT = {s3_endpoint}")
+        logger.info(f"AWS_ACCESS_KEY_ID = {s3_access_key_id}")
+        logger.info(f"AWS_SECRET_ACCESS_KEY = {s3_access_key}")
 
         self.session = boto3.Session(
-            region_name=os.environ.get("AWS_REGION"),
-            aws_access_key_id=os.environ.get("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.environ.get("AWS_SECRET_ACCESS_KEY"),
+            region_name=s3_region,
+            aws_access_key_id=s3_access_key_id,
+            aws_secret_access_key=s3_access_key,
         )
         self.s3_client = self.session.client(
             service_name="s3",
-            endpoint_url=os.environ.get("AWS_S3_ENDPOINT"),
+            endpoint_url=s3_endpoint,
             verify=True,
             use_ssl=True,
             config=Config(s3={"addressing_style": "path", "signature_version": "s3v4"}),
