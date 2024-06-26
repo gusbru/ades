@@ -1,4 +1,4 @@
-2024-05-05 22:03:36.203 | INFO     | water-bodies-argo.service:water_bodies_argo:1023 - conf = {
+conf = {
     "main": {
         "encoding": "utf-8",
         "version": "1.0.0",
