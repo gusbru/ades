@@ -8,11 +8,14 @@ from typing import Any, Optional
 try:
     import zoo
 except ImportError:
+
     class Zoo:
         SERVICE_SUCCEEDED = "SUCCEEDED"
         SERVICE_FAILED = "FAILED"
+
         def update_status(self, conf, progress):
             pass
+
     zoo = Zoo()
 
 import boto3
@@ -101,11 +104,11 @@ class CustomStacIO(DefaultStacIO):
 
     def __init__(self):
         logger.info("CustomStacIO init")
-        s3_region = os.environ.get('STAGEOUT_AWS_REGION')
-        s3_endpoint = os.environ.get('STAGEOUT_AWS_SERVICEURL')
-        s3_access_key_id = os.environ.get('STAGEOUT_AWS_ACCESS_KEY_ID')
-        s3_access_key = os.environ.get('STAGEOUT_AWS_SECRET_ACCESS_KEY')
-        
+        s3_region = os.environ.get("STAGEOUT_AWS_REGION")
+        s3_endpoint = os.environ.get("STAGEOUT_AWS_SERVICEURL")
+        s3_access_key_id = os.environ.get("STAGEOUT_AWS_ACCESS_KEY_ID")
+        s3_access_key = os.environ.get("STAGEOUT_AWS_SECRET_ACCESS_KEY")
+
         logger.info(f"AWS_REGION = {s3_region}")
         logger.info(f"AWS_S3_ENDPOINT = {s3_endpoint}")
         logger.info(f"AWS_ACCESS_KEY_ID = {s3_access_key_id}")
@@ -170,68 +173,19 @@ class ArgoWorkflow:
         self.rbac_v1 = client.RbacAuthorizationV1Api()
         self.custom_api = client.CustomObjectsApi()
 
-    def _save_template_job_namespace(self):
-        logger.debug(
-            f"template_manifest = {json.dumps(self.workflow_manifest, indent=2)}"
-        )
-
-        # TODO: try to load the template from the workspace namespace
-        name = self.workflow_manifest["metadata"]["name"].lower()
-        version = self.workflow_manifest["metadata"]["version"]
-        self.workflow_manifest["metadata"]["name"] = f"{name}-{version}"
-        self.workflow_manifest["metadata"] = {
-            **self.workflow_manifest["metadata"],
-            "namespace": self.job_namespace,
-            "resourceVersion": version,
-        }
-
-        existing_template = self._load_workflow_template()
-
-        if existing_template is not None:
-            # TODO: should update?
-            return
-
-        # save workflow template if it does not exist
-        try:
-            # Create the template
-            workflow_template_name = self.workflow_manifest["metadata"]["name"]
-            logger.info(
-                f"Creating workflow template {workflow_template_name} on namespace {self.job_namespace}"
-            )
-
-            self.custom_api.create_namespaced_custom_object(
-                group="argoproj.io",
-                version="v1alpha1",
-                namespace=self.job_namespace,
-                plural="workflowtemplates",
-                body=self.workflow_manifest,
-            )
-            logger.info(
-                f"Workflow template {workflow_template_name} created successfully"
-            )
-        except Exception as e:
-            logger.error(f"Error saving template: {e}")
-            raise e
-
     def _load_workflow_template(self):
         try:
-            if self.workflow_manifest is None:
-                raise ValueError("workflow_manifest is required")
-
-            # Get the template
+            # Load the workflow template
+            logger.info(
+                f"Loading workflow template {self.workflow_config.job_information.process_identifier} on namespace {self.job_namespace}"
+            )
             return self.custom_api.get_namespaced_custom_object(
                 group="argoproj.io",
                 version="v1alpha1",
                 namespace=self.job_namespace,
                 plural="workflowtemplates",
-                name=self.workflow_manifest["metadata"]["name"],
+                name=self.workflow_config.job_information.process_identifier,
             )
-        except ApiException as e:
-            if e.status == 404:
-                logger.info("Workflow template not found")
-                return None
-            else:
-                raise e
         except Exception as e:
             logger.error(f"Error loading template: {e}")
             raise e
@@ -323,29 +277,25 @@ class ArgoWorkflow:
         else:
             return zoo.SERVICE_FAILED
 
-    def run(self, workflow_file: Optional[dict[str, Any]] = None):
+    def run(self):
         try:
-            if workflow_file is not None:
-                self.workflow_manifest = workflow_file
-            else:
-                # Load the workflow template
-                logger.info("Loading workflow template")
-                self.workflow_manifest = self._load_workflow_template()
-
-            # Template workflow needs to be on the same namespace as the job
-            self._save_template_job_namespace()
+            logger.info(
+                f"Running workflow: {self.job_information.process_identifier} - job: {self.job_information.process_usid}"
+            )
+            # Load the workflow template
+            logger.info("Loading workflow template")
+            self.workflow_manifest = self._load_workflow_template()
 
             workflow = self._submit_workflow()
             exit_status = self._monitor_workflow(workflow)
 
             self._save_feature_collection()
             self._save_workflow_logs()
-            
 
             return exit_status
         except Exception as e:
             logger.error(f"Error running workflow: {e}")
-            self._save_workflow_logs()
+            self._save_workflow_logs(extra_logs=str(e))
             return zoo.SERVICE_FAILED
 
     def get_collection(self):
@@ -353,20 +303,22 @@ class ArgoWorkflow:
         collection_s3_path = f"s3://{self.job_information.workspace}/processing-results/{self.job_information.process_usid}/collection.json"
         logger.info(f"Getting collection at {collection_s3_path}")
         return read_file(collection_s3_path)
-    
+
     def _get_pods_for_workflow(self):
         logger.info(f"Getting pods for workflow {self.job_information.process_usid}")
         pods = self.v1.list_namespaced_pod(namespace=self.job_namespace)
-        return [pod for pod in pods.items if self.job_information.process_usid in pod.metadata.name]
+        return [
+            pod
+            for pod in pods.items
+            if self.job_information.process_usid in pod.metadata.name
+        ]
 
     def _save_feature_collection(self):
         # get results
         collection = self.get_collection()
-        self.feature_collection = json.dumps(
-            collection.to_dict(transform_hrefs=False)
-        )
-    
-    def _save_workflow_logs(self, log_filename="logs.log"):
+        self.feature_collection = json.dumps(collection.to_dict(transform_hrefs=False))
+
+    def _save_workflow_logs(self, log_filename="logs.log", extra_logs=None):
         try:
             logger.info(
                 f"Getting logs for workflow {self.job_information.process_usid} in namespace {self.job_namespace}"
@@ -396,6 +348,12 @@ class ArgoWorkflow:
                             f"Error getting logs for pod {pod.metadata.name}: {e}"
                         )
                         f.write(f"Error getting logs for pod {pod.metadata.name}: {e}")
+
+                if extra_logs is not None:
+                    f.write(f"\n{'='*80}\n")
+                    f.write(f"Extra logs:\n")
+                    f.write(f"\n{extra_logs}")
+                    f.write(f"\n{'='*80}\n")
 
                 logger.info(f"Logs saved to {log_filename}")
                 f.write(f"\n{'='*80}\n")
@@ -427,7 +385,9 @@ class ArgoWorkflow:
             # delete the pods
             pods = self._get_pods_for_workflow()
             for pod in pods:
-                self.v1.delete_namespaced_pod(name=pod.metadata.name, namespace=self.job_namespace)
+                self.v1.delete_namespaced_pod(
+                    name=pod.metadata.name, namespace=self.job_namespace
+                )
 
             # delete configmap with env variables
             self.v1.delete_namespaced_config_map(
@@ -444,6 +404,10 @@ class ArgoWorkflow:
                 name=self.job_information.process_usid,
             )
 
-            logger.info(f"Resources for {self.job_namespace}-{self.job_information.process_usid} deleted.")
+            logger.info(
+                f"Resources for {self.job_namespace}-{self.job_information.process_usid} deleted."
+            )
         except Exception as e:
-            logger.error(f"Error deleting Resources for {self.job_namespace}-{self.job_information.process_usid}: {e}")
+            logger.error(
+                f"Error deleting Resources for {self.job_namespace}-{self.job_information.process_usid}: {e}"
+            )

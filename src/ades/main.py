@@ -13,8 +13,10 @@ from .argo_workflow import (
     WorkflowConfig,
 )
 
+
 def check_file_exists(file_path: str) -> bool:
     return os.path.isfile(file_path)
+
 
 class ADES:
     job_information: JobInformation
@@ -23,38 +25,6 @@ class ADES:
         self.conf = conf
         self.inputs = inputs
         self.outputs = outputs
-
-    def _load_workflow_template_from_file(
-        self, file_name: str = "app-package.cwl"
-    ) -> dict[str, Any]:
-        logger.info(f"open file: {file_name}")
-
-        # first try to open the file from the workspace. If it does not exist, open the file from the global (/usr/lib/cgi-bin) directory
-
-        # this will read files from /opt/zooservices_user/<namespace>/<service_name>/<file_name>
-        zoo_service_namespace = self.conf["lenv"]["cwd"]
-        zoo_service_name = self.conf["lenv"]["Identifier"]
-        logger.info(f"zoo_service_namespace = {zoo_service_namespace}")
-        logger.info(f"zoo_service_name = {zoo_service_name}")
-
-        logger.info("Verifying if the file exists in the workspace")
-        file_path = None
-        # check if the file exists
-        if check_file_exists(os.path.join(zoo_service_namespace, zoo_service_name, file_name)):
-            logger.info("File exists in the workspace")
-            file_path = os.path.join(zoo_service_namespace, zoo_service_name, file_name)
-        elif check_file_exists(os.path.join("/usr/lib/cgi-bin", file_name)):
-            logger.info("File exists in the global directory")
-            file_path = os.path.join("/usr/lib/cgi-bin", file_name)
-        else:
-            logger.error("Template File does not exist in the workspace or in the global directory")
-            raise FileNotFoundError(f"File {file_name} not found in the workspace or in the global directory")
-
-
-        with open(file_path,"r") as stream:
-            argo_template = yaml.safe_load(stream)
-
-        return argo_template
 
     def register_catalog(self):
         os.environ.pop("HTTP_PROXY", None)
@@ -103,7 +73,6 @@ class ADES:
     def execute_runner(self):
         try:
             logger.info("Starting execute runner")
-            argo_template = self._load_workflow_template_from_file()
 
             self.job_information = JobInformation(conf=self.conf, inputs=self.inputs)
             logger.info(self.job_information)
@@ -130,7 +99,7 @@ class ADES:
             # run the workflow
             logger.info("Running workflow")
             argo_workflow = ArgoWorkflow(workflow_config=workflow_config)
-            exit_status = argo_workflow.run(workflow_file=argo_template)
+            exit_status = argo_workflow.run()
 
             # if there is a collection_id on the input, add the processed item into that collection
             if exit_status == zoo.SERVICE_SUCCEEDED:
