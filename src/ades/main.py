@@ -159,5 +159,6 @@ class ADES:
             "workspace": self.job_information.workspace,
             "user_id": self.job_information.user_id,
         }
+        logger.info(f"Sending message: {message}")
         
         self.redis.rpush(self.conf["eoepca"]["notification_queue_name"], json.dumps(message))

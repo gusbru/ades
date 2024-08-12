@@ -2,7 +2,7 @@ import json
 import os
 import sys
 from urllib.parse import urlparse
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Optional
 
 try:
@@ -24,7 +24,6 @@ from pystac import read_file
 from pystac.stac_io import DefaultStacIO, StacIO
 from botocore.client import Config
 from kubernetes import client, config, watch
-from kubernetes.client.rest import ApiException
 
 
 logger.remove()
@@ -44,7 +43,9 @@ class JobInformation:
             "job_workspace_suffix", "job"
         )
         self.input_parameters = self._parse_input_parameters()
-        self.user_id = conf["lenv"].get("auth_env", {}).get("sub")
+        logger.info(f"lenv: {conf['lenv']}")
+        logger.info(f"auth_env: {conf['auth_env']}")
+        self.user_id = conf["auth_env"].get("sub")
 
     @property
     def workspace(self):
