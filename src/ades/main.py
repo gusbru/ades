@@ -152,6 +152,7 @@ class ADES:
             return zoo.SERVICE_FAILED
         
     def _send_notification_message(self, exit_status: Any) -> None:
+        logger.info(f"CONF[EOEPCA]: {self.conf['eoepca']}")
         message = {
             "status": "success" if exit_status == zoo.SERVICE_SUCCEEDED else "failure",
             "job_id": self.job_information.process_usid,
@@ -159,4 +160,4 @@ class ADES:
             "user_id": self.job_information.user_id,
         }
         
-        self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
+        self.redis.rpush(self.conf["eoepca"]["notification_queue_name"], json.dumps(message))
