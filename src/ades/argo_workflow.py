@@ -44,6 +44,7 @@ class JobInformation:
             "job_workspace_suffix", "job"
         )
         self.input_parameters = self._parse_input_parameters()
+        self.user_id = conf["lenv"].get("auth_env", {}).get("sub")
 
     @property
     def workspace(self):

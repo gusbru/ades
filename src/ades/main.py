@@ -129,13 +129,7 @@ class ADES:
                 exit_status = zoo.SERVICE_FAILED
 
             # Send status to notification queue
-            message = {
-                "status": "success" if exit_status == zoo.SERVICE_SUCCEEDED else "failure",
-                "job_id": self.job_information.job_id,
-                "workspace": self.job_information.workspace,
-                "user_id": self.job_information.user_id,
-            }
-            self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
+            self._send_notification_message(exit_status)
 
             # Clean up the namespace
             if os.environ.get("NAMESPACE_CLEANUP") is not None:
@@ -150,15 +144,19 @@ class ADES:
             logger.error(stack)
 
             # Send status to notification queue
-            message = {
-                "status": "failure",
-                "job_id": self.job_information.job_id,
-                "workspace": self.job_information.workspace,
-                "user_id": self.job_information.user_id,
-            }
-            self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
+            self._send_notification_message(zoo.SERVICE_FAILED)
 
             self.conf["lenv"]["message"] = zoo._(
                 f"Exception during execution...\n{stack}\n"
             )
             return zoo.SERVICE_FAILED
+        
+    def _send_notification_message(self, exit_status: Any) -> None:
+        message = {
+            "status": "success" if exit_status == zoo.SERVICE_SUCCEEDED else "failure",
+            "job_id": self.job_information.process_usid,
+            "workspace": self.job_information.workspace,
+            "user_id": self.job_information.user_id,
+        }
+        
+        self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
