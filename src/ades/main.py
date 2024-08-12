@@ -6,6 +6,7 @@ import zoo
 from loguru import logger
 import requests
 import yaml
+from redis import Redis
 
 from .argo_workflow import (
     ArgoWorkflow,
@@ -25,6 +26,7 @@ class ADES:
         self.conf = conf
         self.inputs = inputs
         self.outputs = outputs
+        self.redis = Redis(host=conf["eoepca"]["notification_queue_host"], port=conf["eoepca"]["notification_queue_port"])
 
     def register_catalog(self):
         os.environ.pop("HTTP_PROXY", None)
@@ -126,6 +128,15 @@ class ADES:
                 self.conf["lenv"]["message"] = error_message
                 exit_status = zoo.SERVICE_FAILED
 
+            # Send status to notification queue
+            message = {
+                "status": "success" if exit_status == zoo.SERVICE_SUCCEEDED else "failure",
+                "job_id": self.job_information.job_id,
+                "workspace": self.job_information.workspace,
+                "user_id": self.job_information.user_id,
+            }
+            self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
+
             # Clean up the namespace
             if os.environ.get("NAMESPACE_CLEANUP") is not None:
                 logger.info("Cleaning up namespace")
@@ -137,6 +148,16 @@ class ADES:
             logger.error("ERROR in processing execution template...")
             stack = str(e)
             logger.error(stack)
+
+            # Send status to notification queue
+            message = {
+                "status": "failure",
+                "job_id": self.job_information.job_id,
+                "workspace": self.job_information.workspace,
+                "user_id": self.job_information.user_id,
+            }
+            self.redis.rpush(self.conf["eoepca"]["notification_queue"], json.dumps(message))
+
             self.conf["lenv"]["message"] = zoo._(
                 f"Exception during execution...\n{stack}\n"
             )
